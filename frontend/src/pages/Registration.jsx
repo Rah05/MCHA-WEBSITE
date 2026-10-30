@@ -16,14 +16,15 @@ function Registration() {
   function handleChange(event) {
     const { name, value } = event.target
 
-    setFormData({
-      ...formData,
+    setFormData((previousData) => ({
+      ...previousData,
       [name]: value,
-    })
+    }))
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault()
+    setMessage('')
 
     if (formData.password.length < 8) {
       setMessage('Password must be at least 8 characters.')
@@ -35,7 +36,46 @@ function Registration() {
       return
     }
 
-    setMessage('Account created successfully!')
+    try {
+      const response = await fetch(
+        'http://localhost:3000/api/auth/register',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            phone: formData.phone,
+            password: formData.password,
+          }),
+        }
+      )
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setMessage(data.error || 'Registration failed.')
+        return
+      }
+
+      setMessage(data.message)
+
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        password: '',
+        confirmPassword: '',
+      })
+    } catch (error) {
+      setMessage(
+        'Unable to connect to the backend. Make sure the backend is running.'
+      )
+    }
   }
 
   return (
