@@ -1,7 +1,13 @@
 import Home from './pages/Home'
+import Registration from './pages/Registration'
 
-// Add routing here later (e.g. react-router-dom) as more pages are built.
 function App() {
+  const path = window.location.pathname
+
+  if (path === '/register') {
+    return <Registration />
+  }
+
   return <Home />
 }
 
