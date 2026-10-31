@@ -16,3 +16,84 @@ body {
   font-size: 0.9rem;
   color: #5b6b55;
 }
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 3rem;
+  background-color: #f4f2e9;
+}
+
+.logo {
+  color: #263d2b;
+  font-size: 1.6rem;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.navigation,
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.header a {
+  color: #263d2b;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.header a:hover {
+  color: #758568;
+}
+
+/* Hero Section */
+.home {
+  max-width: 100%;
+  min-height: 550px;
+  margin: 0;
+  padding: 7rem 2rem;
+  box-sizing: border-box;
+  background-color: #f4f2e9;
+  color: #263d2b;
+  text-align: center;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.home h1 {
+  font-size: 3.5rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.home p {
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+}
+
+/* Hero Buttons */
+.hero-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.hero-buttons a {
+  padding: 0.9rem 1.8rem;
+  background-color: #263d2b;
+  color: #f4f2e9;
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: background-color 0.2s;
+}
+
+.hero-buttons a:hover {
+  background-color: #758568;
+}

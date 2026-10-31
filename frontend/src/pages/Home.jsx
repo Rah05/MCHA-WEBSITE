@@ -1,22 +1,22 @@
-import { useEffect, useState } from 'react'
-import { getHealth } from '../api/health'
+import Header from '../components/Header'
 
-// Placeholder homepage. Hazuki builds the real layout in SCRUM-32 / SCRUM-33.
 function Home() {
-  const [api, setApi] = useState('checking...')
-
-  useEffect(() => {
-    getHealth()
-      .then((data) => setApi(`${data.status} (database: ${data.database})`))
-      .catch(() => setApi('unreachable'))
-  }, [])
-
   return (
-    <main className="home">
-      <h1>M.CHA</h1>
-      <p>Website under construction.</p>
-      <p className="status">API status: {api}</p>
-    </main>
+    <>
+      <Header />
+
+      <main className="home">
+        <h1>Matcha, rooted in tradition.</h1>
+        <p>
+          Handcrafted matcha and hojicha, straight from Kyoto to Sacramento.
+        </p>
+
+        <div className="hero-buttons">
+          <a href="/shop">SHOP M.CHA</a>
+          <a href="/schedule">FIND A POP-UP</a>
+        </div>
+      </main>
+    </>
   )
 }
 
