@@ -1,0 +1,36 @@
+:root {
+  /* Homepage Colors */
+  --color-cream: #f4f2e9;
+  --color-green-900: #263d2b;
+  --color-green-500: #758568;
+  --color-text: #263d2b;
+  --color-text-muted: #5b6b55;
+
+  /* Surface/Border Colors */
+  --color-surface: #fffdf7;
+  --color-border: #e4e2d5;
+
+  /* Feedback Colors */
+  --color-error: #a94442;
+  --color-error-bg: #f5dedb;
+  --color-success: #367449;
+
+  /* Fonts (can be changed if we need a specific font) */
+  --font-body: system-ui, sans-serif;
+  --font-heading: system-ui, sans-serif;
+
+  /* Text Sizes */
+  --text-sm: 0.85rem;
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
+  --text-hero: 3.5rem;
+
+  /* Spacings and Shape */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 1rem;
+  --space-4: 1.5rem;
+  --space-5: 3rem;
+  --radius-button: 0;
+  --radius-card: 4px;
+}
