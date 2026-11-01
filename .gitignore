@@ -66,3 +66,19 @@ vcpkg_installed/
 # test output & cache
 Testing/
 .cache/
+
+# Node / web (backend + frontend)
+node_modules/
+dist/
+npm-debug.log*
+
+# Environment files - never commit secrets. .env.example is kept.
+.env
+.env.*
+!.env.example
+
+# OS / editor
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea/
