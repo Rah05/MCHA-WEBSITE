@@ -1,22 +1,23 @@
--- M.CHA database schema (starter). Harpreet owns this file; add tables as stories need them.
--- Run with: psql "$DATABASE_URL" -f db/schema.sql
+-- M.CHA database schema (MySQL 8+). Harpreet owns this file; add tables as stories need them.
+-- Run with: npm run db:setup   (from backend/, reads DATABASE_URL from .env)
+-- Safe to re-run: tables use IF NOT EXISTS and seed rows use INSERT IGNORE.
 
 CREATE TABLE IF NOT EXISTS roles (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(30) UNIQUE NOT NULL  -- 'admin', 'staff', 'customer'
-);
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(30) NOT NULL UNIQUE  -- 'admin', 'staff', 'customer'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO roles (name) VALUES ('admin'), ('staff'), ('customer')
-ON CONFLICT (name) DO NOTHING;
+INSERT IGNORE INTO roles (name) VALUES ('admin'), ('staff'), ('customer');
 
 CREATE TABLE IF NOT EXISTS users (
-  id SERIAL PRIMARY KEY,
-  email VARCHAR(255) UNIQUE NOT NULL,
-  password_hash TEXT NOT NULL,
-  role_id INTEGER NOT NULL REFERENCES roles(id),
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  role_id INT NOT NULL,
   first_name VARCHAR(100),
   last_name VARCHAR(100),
-  reset_token TEXT,
-  reset_token_expires TIMESTAMPTZ,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
+  reset_token VARCHAR(255),
+  reset_token_expires DATETIME,          -- stored in UTC
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_users_role FOREIGN KEY (role_id) REFERENCES roles(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
