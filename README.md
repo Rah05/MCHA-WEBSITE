@@ -7,15 +7,13 @@ Website for M.CHA: product browsing and checkout for customers, pop-up events, a
 - **Jira board:** https://codeblooded.atlassian.net/jira/software/projects/SCRUM/boards/1
 - **Integration branch:** `develop` (all feature work merges here first)
 
-> **⚠️ Database is moving from PostgreSQL to MySQL** (decided in #backend). The code on `develop` still uses PostgreSQL, so the database steps below are for Postgres and will be updated once the backend switches to MySQL.
-
 ## Tech stack
 
 | Part | Tech |
 |---|---|
 | Frontend | React 19 + Vite (`frontend/`) |
 | Backend | Node.js + Express 5 (`backend/`) |
-| Database | PostgreSQL (via `pg`) for now; **switching to MySQL** |
+| Database | MySQL 8+ (via `mysql2`) |
 | Auth | `bcrypt` for password hashing, `jsonwebtoken` for login tokens |
 | Payments | Square (not Stripe) |
 | Hosting | Render (suggested) |
@@ -30,7 +28,7 @@ MCHA-WEBSITE/
 │   ├── controllers/       # Request handlers used by routes
 │   ├── middleware/        # Auth checks, role guards, etc.
 │   ├── db/
-│   │   ├── pool.js        # Postgres connection (reads DATABASE_URL)
+│   │   ├── pool.js        # MySQL connection pool (reads DATABASE_URL)
 │   │   └── schema.sql     # Database tables
 │   └── .env.example       # Template for your local backend/.env
 └── frontend/
@@ -47,7 +45,7 @@ MCHA-WEBSITE/
 ## Prerequisites
 
 - **Node.js 22 LTS** (or 20.19+). Vite 8 will not run on Node 18. Check with `node --version`.
-- **PostgreSQL 15+** running locally, or a hosted Postgres database URL.
+- **MySQL 8 or newer** running locally ([download](https://dev.mysql.com/downloads/mysql/), or `brew install mysql`), or a hosted MySQL database URL.
 - **Git**
 
 ## Local setup
@@ -73,17 +71,16 @@ Open `backend/.env` and fill in your values:
 | Variable | What it is |
 |---|---|
 | `PORT` | Port for the API. Leave as `3000` (the frontend proxy expects it). |
-| `DATABASE_URL` | Your Postgres connection string, e.g. `postgresql://postgres:password@localhost:5432/mcha` |
+| `DATABASE_URL` | Your MySQL connection string, e.g. `mysql://root:yourpassword@localhost:3306/mcha` |
 | `DATABASE_SSL` | `false` for a local database, `true` for most hosted databases |
 | `JWT_SECRET` | Any long random string. Generate one with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` |
 
 **Never commit `.env`.** It's ignored by git; only `.env.example` belongs in the repo. If you add a new variable, add it to `.env.example` with a placeholder value.
 
-Create the database and tables:
+Create the database and tables (reads `DATABASE_URL` from `.env`, safe to re-run):
 
 ```bash
-createdb mcha
-psql "postgresql://postgres:password@localhost:5432/mcha" -f db/schema.sql
+npm run db:setup
 ```
 
 Start the API:
@@ -114,6 +111,7 @@ Open http://localhost:5173. Requests to `/api/...` are forwarded to the backend 
 |---|---|---|
 | `backend/` | `npm run dev` | Start the API with auto-restart |
 | `backend/` | `npm start` | Start the API |
+| `backend/` | `npm run db:setup` | Create the database and apply `db/schema.sql` |
 | `frontend/` | `npm run dev` | Start the dev server |
 | `frontend/` | `npm run build` | Production build into `frontend/dist/` |
 | `frontend/` | `npm run lint` | Lint with oxlint |
@@ -148,3 +146,28 @@ git merge develop
 - **New page:** add `frontend/src/pages/<Page>.jsx` and its route in `App.jsx`.
 - **Calling the API from React:** add a helper in `frontend/src/api/<feature>.js`, like `api/health.js`.
 - **New database table:** add it to `backend/db/schema.sql` using `CREATE TABLE IF NOT EXISTS` so the file can be re-run safely.
+
+## Querying MySQL
+
+Import the shared pool with `const pool = require('../db/pool');`. If you're used to Postgres (`pg`), three things are different:
+
+| | Postgres (`pg`) | MySQL (`mysql2`) |
+|---|---|---|
+| Placeholders | `$1, $2` | `?, ?` |
+| Result | `const result = await pool.query(...)` then `result.rows` | `const [rows] = await pool.query(...)` |
+| New row's id | `INSERT ... RETURNING id` | `const [result] = await pool.query('INSERT ...')` then `result.insertId` |
+
+```js
+// Select
+const [users] = await pool.query('SELECT id, email FROM users WHERE email = ?', [email]);
+if (users.length === 0) { /* not found */ }
+
+// Insert, then read back the new row
+const [result] = await pool.query(
+  'INSERT INTO users (email, password_hash, role_id) VALUES (?, ?, ?)',
+  [email, passwordHash, roleId]
+);
+const [[user]] = await pool.query('SELECT id, email, created_at FROM users WHERE id = ?', [result.insertId]);
+```
+
+Always pass values as the second argument (`[...]`), never by building the SQL string yourself. That keeps queries safe from SQL injection.
