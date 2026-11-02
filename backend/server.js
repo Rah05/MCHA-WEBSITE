@@ -14,6 +14,7 @@ app.use(express.json());
 app.use('/api/health', healthRoutes);
 // Add new route files here, e.g. app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
+app.use('/api/auth', require('./routes/login')); // POST /api/auth/login (SCRUM-98)
 
 // Basic error handler
 app.use((err, req, res, next) => {
