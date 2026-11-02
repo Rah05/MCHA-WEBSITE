@@ -1,12 +1,22 @@
 
+import { useState } from 'react'
+
 function Header() {
+  const [menuOpen, setMenuOpen] = useState(false)
+
   return (
     <header className="header">
-      <a href="/" className="logo">
-        M.CHA
-      </a>
+      <a href="/" className="logo">M.CHA</a>
 
-      <nav className="navigation">
+      <button
+        className="menu-toggle"
+        onClick={() => setMenuOpen(!menuOpen)}
+        aria-label="Toggle navigation menu"
+      >
+        ☰
+      </button>
+
+      <nav className={`navigation ${menuOpen ? 'active' : ''}`}>
         <a href="/shop">SHOP</a>
         <a href="/wholesale">WHOLESALE</a>
         <a href="/schedule">SCHEDULE</a>
