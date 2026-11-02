@@ -7,14 +7,18 @@ Website for M.CHA: product browsing and checkout for customers, pop-up events, a
 - **Jira board:** https://codeblooded.atlassian.net/jira/software/projects/SCRUM/boards/1
 - **Integration branch:** `develop` (all feature work merges here first)
 
+> **⚠️ Database is moving from PostgreSQL to MySQL** (decided in #backend). The code on `develop` still uses PostgreSQL, so the database steps below are for Postgres and will be updated once the backend switches to MySQL.
+
 ## Tech stack
 
 | Part | Tech |
 |---|---|
 | Frontend | React 19 + Vite (`frontend/`) |
 | Backend | Node.js + Express 5 (`backend/`) |
-| Database | PostgreSQL (via `pg`) |
+| Database | PostgreSQL (via `pg`) for now; **switching to MySQL** |
 | Auth | `bcrypt` for password hashing, `jsonwebtoken` for login tokens |
+| Payments | Square (not Stripe) |
+| Hosting | Render (suggested) |
 
 ## Project structure
 
