@@ -15,6 +15,8 @@ const pool = mysql.createPool({
   connectionLimit: 10,
   // Store and return DATETIME values as UTC
   timezone: 'Z',
+  // Return DECIMAL columns (prices) as numbers instead of strings like "30.00"
+  decimalNumbers: true,
 });
 
 // Make NOW()/CURRENT_TIMESTAMP use UTC too, so timestamps match on every machine

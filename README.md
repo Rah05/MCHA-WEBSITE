@@ -83,6 +83,12 @@ Create the database and tables (reads `DATABASE_URL` from `.env`, safe to re-run
 npm run db:setup
 ```
 
+Optional: load 7 sample products (from the admin Figma mockup) so the shop and admin pages have data:
+
+```bash
+npm run db:seed
+```
+
 Start the API:
 
 ```bash
@@ -112,6 +118,8 @@ Open http://localhost:5173. Requests to `/api/...` are forwarded to the backend 
 | `backend/` | `npm run dev` | Start the API with auto-restart |
 | `backend/` | `npm start` | Start the API |
 | `backend/` | `npm run db:setup` | Create the database and apply `db/schema.sql` |
+| `backend/` | `npm run db:seed` | Same as `db:setup`, plus sample products from `db/seed.sql` |
+| `backend/` | `npm test` | Run the backend tests (needs the database set up) |
 | `frontend/` | `npm run dev` | Start the dev server |
 | `frontend/` | `npm run build` | Production build into `frontend/dist/` |
 | `frontend/` | `npm run lint` | Lint with oxlint |
@@ -146,6 +154,77 @@ git merge develop
 - **New page:** add `frontend/src/pages/<Page>.jsx` and its route in `App.jsx`.
 - **Calling the API from React:** add a helper in `frontend/src/api/<feature>.js`, like `api/health.js`.
 - **New database table:** add it to `backend/db/schema.sql` using `CREATE TABLE IF NOT EXISTS` so the file can be re-run safely.
+
+## Roles and permissions
+
+There are four kinds of visitor: **guest** (not signed in), **customer**, **staff**, and **admin**. Roles live in the `roles` table, and each user has one.
+
+### Protecting a backend route
+
+Use the middleware in `backend/middleware/auth.js`:
+
+```js
+const { ROLES, requireAuth, optionalAuth, requireRole, requireSelfOrRole } = require('../middleware/auth');
+
+router.get('/products', listProducts);                                                   // anyone, including guests
+router.get('/menu', optionalAuth, showMenu);                                             // anyone; req.user is set if signed in
+router.get('/account', requireAuth, showAccount);                                        // any signed-in user
+router.post('/products', requireAuth, requireRole(ROLES.ADMIN), createProduct);         // admins only
+router.get('/schedules', requireAuth, requireRole(ROLES.ADMIN, ROLES.STAFF), listShifts); // admins and staff
+router.get('/users/:userId/orders', requireAuth, requireSelfOrRole('userId', ROLES.ADMIN), listOrders); // own orders, or admin
+```
+
+- `requireAuth` returns **401** if there's no valid login. Inside the route, `req.user` is `{ id, email, first_name, last_name, role }`.
+- `requireRole(...)` returns **403** if the user's role isn't in the list. Always put `requireAuth` before it.
+- The role is read from the database on every request, so changing someone's role (or deleting them) takes effect immediately.
+- **Hiding a button in the frontend is not security.** Every admin/staff API route must use `requireRole`, because anyone can call the API directly.
+
+### Signing in (for the login endpoint, SCRUM-98)
+
+After checking the password with `bcrypt.compare`, create a token and send it back:
+
+```js
+const { signToken } = require('../middleware/auth');
+res.json({ token: signToken(user) });
+```
+
+The frontend sends it on every request as a header: `Authorization: Bearer <token>`. Logins last `JWT_EXPIRES_IN` (default `2h`).
+
+### Showing the right pages in the frontend
+
+`GET /api/users/me` (with the token) returns the signed-in user and their `role`. Pass that role to `RoleGuard` to show or hide pages and buttons.
+
+### Who can do what (proposal, confirm with the team)
+
+| | Guest | Customer | Staff | Admin |
+|---|:-:|:-:|:-:|:-:|
+| Browse products, menu, events | ✅ | ✅ | ✅ | ✅ |
+| Register / sign in | ✅ | – | – | – |
+| Own account, order history, book events | | ✅ | ✅ | ✅ |
+| Staff schedules (view own) | | | ✅ | ✅ |
+| Manage events, view event requests | | | ✅ | ✅ |
+| Manage products, prices, wholesale | | | | ✅ |
+| Create/edit staff schedules, manage users and roles | | | | ✅ |
+
+## Database tables
+
+Defined in `backend/db/schema.sql`:
+
+| Table | What it holds |
+|---|---|
+| `roles` | `admin`, `staff`, `customer` |
+| `users` | Accounts: email, bcrypt password hash, role, name, password-reset token |
+| `products` | Name, category, `price`, `wholesale_price` (NULL = not sold wholesale), `stock`, `stock_label` (e.g. "Made to order"), `is_available` |
+| `orders` | One per checkout: customer (or NULL `user_id` for guests), `order_type` (retail/wholesale), `status` (pending → paid → fulfilled, or cancelled/refunded), totals, `square_payment_id` |
+| `order_items` | Products in each order, with the name and price **copied at checkout** so old orders stay correct after price changes |
+
+Rules the database enforces:
+
+- Prices and stock can't be negative, and order quantities must be at least 1.
+- A product that has been ordered **can't be deleted**. Set `is_available = FALSE` to hide it instead.
+- Deleting an order deletes its items. Deleting a user keeps their orders (they become guest orders).
+- **Never send `wholesale_price` to customers.** Only include it in admin/wholesale API responses.
+- Prices are dollars (`DECIMAL`) and come back as numbers. Square expects cents, so convert with `Math.round(price * 100)` when creating a payment.
 
 ## Querying MySQL
 
