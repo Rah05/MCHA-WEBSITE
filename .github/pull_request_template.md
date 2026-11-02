@@ -27,3 +27,4 @@ SCRUM-
 - [ ] New environment variables are added to `backend/.env.example`
 - [ ] Database changes are added to `backend/db/schema.sql`
 - [ ] Jira ticket moved to **In Review**
+- [ ] Reviewer requested (someone other than me). The reviewer merges this into `develop`, then `develop` into `main`

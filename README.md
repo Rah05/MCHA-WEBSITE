@@ -130,9 +130,18 @@ Open http://localhost:5173. Requests to `/api/...` are forwarded to the backend 
    ```bash
    git commit -m "SCRUM-81 add customer sign-in form"
    ```
-3. **Push and open a pull request into `develop`** (not `main`). Fill in the PR template.
-4. **Get at least one teammate to review** before merging.
-5. `develop` is merged into `main` when the team is ready to release.
+3. **Push and open a pull request into `develop`** (not `main`). Fill in the PR template and request a reviewer.
+4. **A second person reviews it.** The reviewer must be someone other than the author. Never merge your own PR.
+5. **The reviewer merges it.** Once it's approved, the reviewer:
+   1. merges the PR into `develop`
+   2. merges `develop` into `main` (open a PR from `develop` → `main` and merge it)
+
+```
+your feature branch ──PR──▶ develop ──(reviewer merges)──▶ main
+        author                 reviewer checks + merges both steps
+```
+
+**Nobody pushes directly to `develop` or `main`.** All changes go through a pull request.
 
 Before opening a PR, pull the latest `develop` into your branch and fix any conflicts (`App.jsx` and `server.js` are shared by most features):
 
