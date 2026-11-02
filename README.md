@@ -112,6 +112,7 @@ Open http://localhost:5173. Requests to `/api/...` are forwarded to the backend 
 | `backend/` | `npm run dev` | Start the API with auto-restart |
 | `backend/` | `npm start` | Start the API |
 | `backend/` | `npm run db:setup` | Create the database and apply `db/schema.sql` |
+| `backend/` | `npm test` | Run the backend tests (needs the database set up) |
 | `frontend/` | `npm run dev` | Start the dev server |
 | `frontend/` | `npm run build` | Production build into `frontend/dist/` |
 | `frontend/` | `npm run lint` | Lint with oxlint |
@@ -146,6 +147,57 @@ git merge develop
 - **New page:** add `frontend/src/pages/<Page>.jsx` and its route in `App.jsx`.
 - **Calling the API from React:** add a helper in `frontend/src/api/<feature>.js`, like `api/health.js`.
 - **New database table:** add it to `backend/db/schema.sql` using `CREATE TABLE IF NOT EXISTS` so the file can be re-run safely.
+
+## Roles and permissions
+
+There are four kinds of visitor: **guest** (not signed in), **customer**, **staff**, and **admin**. Roles live in the `roles` table, and each user has one.
+
+### Protecting a backend route
+
+Use the middleware in `backend/middleware/auth.js`:
+
+```js
+const { ROLES, requireAuth, optionalAuth, requireRole, requireSelfOrRole } = require('../middleware/auth');
+
+router.get('/products', listProducts);                                                   // anyone, including guests
+router.get('/menu', optionalAuth, showMenu);                                             // anyone; req.user is set if signed in
+router.get('/account', requireAuth, showAccount);                                        // any signed-in user
+router.post('/products', requireAuth, requireRole(ROLES.ADMIN), createProduct);         // admins only
+router.get('/schedules', requireAuth, requireRole(ROLES.ADMIN, ROLES.STAFF), listShifts); // admins and staff
+router.get('/users/:userId/orders', requireAuth, requireSelfOrRole('userId', ROLES.ADMIN), listOrders); // own orders, or admin
+```
+
+- `requireAuth` returns **401** if there's no valid login. Inside the route, `req.user` is `{ id, email, first_name, last_name, role }`.
+- `requireRole(...)` returns **403** if the user's role isn't in the list. Always put `requireAuth` before it.
+- The role is read from the database on every request, so changing someone's role (or deleting them) takes effect immediately.
+- **Hiding a button in the frontend is not security.** Every admin/staff API route must use `requireRole`, because anyone can call the API directly.
+
+### Signing in (for the login endpoint, SCRUM-98)
+
+After checking the password with `bcrypt.compare`, create a token and send it back:
+
+```js
+const { signToken } = require('../middleware/auth');
+res.json({ token: signToken(user) });
+```
+
+The frontend sends it on every request as a header: `Authorization: Bearer <token>`. Logins last `JWT_EXPIRES_IN` (default `2h`).
+
+### Showing the right pages in the frontend
+
+`GET /api/users/me` (with the token) returns the signed-in user and their `role`. Pass that role to `RoleGuard` to show or hide pages and buttons.
+
+### Who can do what (proposal, confirm with the team)
+
+| | Guest | Customer | Staff | Admin |
+|---|:-:|:-:|:-:|:-:|
+| Browse products, menu, events | ✅ | ✅ | ✅ | ✅ |
+| Register / sign in | ✅ | – | – | – |
+| Own account, order history, book events | | ✅ | ✅ | ✅ |
+| Staff schedules (view own) | | | ✅ | ✅ |
+| Manage events, view event requests | | | ✅ | ✅ |
+| Manage products, prices, wholesale | | | | ✅ |
+| Create/edit staff schedules, manage users and roles | | | | ✅ |
 
 ## Querying MySQL
 

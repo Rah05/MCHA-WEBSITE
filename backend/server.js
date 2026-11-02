@@ -13,6 +13,7 @@ app.use(express.json());
 // Routes
 app.use('/api/health', healthRoutes);
 // Add new route files here, e.g. app.use('/api/auth', require('./routes/auth'));
+app.use('/api/users', require('./routes/users'));
 
 // Basic error handler
 app.use((err, req, res, next) => {
