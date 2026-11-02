@@ -1,5 +1,6 @@
 // Creates the database (if missing) and applies db/schema.sql.
-// Usage: npm run db:setup   (reads DATABASE_URL from backend/.env)
+// Usage: npm run db:setup          (reads DATABASE_URL from backend/.env)
+//        npm run db:seed           (also adds sample products from db/seed.sql)
 require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
@@ -35,6 +36,11 @@ async function main() {
     multipleStatements: true,
   });
   await db.query(schema);
+  if (process.argv.includes('--seed')) {
+    await db.query(fs.readFileSync(path.join(__dirname, 'seed.sql'), 'utf8'));
+    const [[{ count }]] = await db.query('SELECT COUNT(*) AS count FROM products');
+    console.log(`Sample data loaded (${count} products).`);
+  }
   const [tables] = await db.query('SHOW TABLES');
   await db.end();
 

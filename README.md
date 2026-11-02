@@ -83,6 +83,12 @@ Create the database and tables (reads `DATABASE_URL` from `.env`, safe to re-run
 npm run db:setup
 ```
 
+Optional: load 7 sample products (from the admin Figma mockup) so the shop and admin pages have data:
+
+```bash
+npm run db:seed
+```
+
 Start the API:
 
 ```bash
@@ -112,6 +118,7 @@ Open http://localhost:5173. Requests to `/api/...` are forwarded to the backend 
 | `backend/` | `npm run dev` | Start the API with auto-restart |
 | `backend/` | `npm start` | Start the API |
 | `backend/` | `npm run db:setup` | Create the database and apply `db/schema.sql` |
+| `backend/` | `npm run db:seed` | Same as `db:setup`, plus sample products from `db/seed.sql` |
 | `backend/` | `npm test` | Run the backend tests (needs the database set up) |
 | `frontend/` | `npm run dev` | Start the dev server |
 | `frontend/` | `npm run build` | Production build into `frontend/dist/` |
@@ -198,6 +205,26 @@ The frontend sends it on every request as a header: `Authorization: Bearer <toke
 | Manage events, view event requests | | | ✅ | ✅ |
 | Manage products, prices, wholesale | | | | ✅ |
 | Create/edit staff schedules, manage users and roles | | | | ✅ |
+
+## Database tables
+
+Defined in `backend/db/schema.sql`:
+
+| Table | What it holds |
+|---|---|
+| `roles` | `admin`, `staff`, `customer` |
+| `users` | Accounts: email, bcrypt password hash, role, name, password-reset token |
+| `products` | Name, category, `price`, `wholesale_price` (NULL = not sold wholesale), `stock`, `stock_label` (e.g. "Made to order"), `is_available` |
+| `orders` | One per checkout: customer (or NULL `user_id` for guests), `order_type` (retail/wholesale), `status` (pending → paid → fulfilled, or cancelled/refunded), totals, `square_payment_id` |
+| `order_items` | Products in each order, with the name and price **copied at checkout** so old orders stay correct after price changes |
+
+Rules the database enforces:
+
+- Prices and stock can't be negative, and order quantities must be at least 1.
+- A product that has been ordered **can't be deleted**. Set `is_available = FALSE` to hide it instead.
+- Deleting an order deletes its items. Deleting a user keeps their orders (they become guest orders).
+- **Never send `wholesale_price` to customers.** Only include it in admin/wholesale API responses.
+- Prices are dollars (`DECIMAL`) and come back as numbers. Square expects cents, so convert with `Math.round(price * 100)` when creating a payment.
 
 ## Querying MySQL
 
