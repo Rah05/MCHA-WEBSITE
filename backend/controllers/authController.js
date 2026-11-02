@@ -19,42 +19,53 @@ async function register(req, res, next) {
   const normalizedEmail = email.trim().toLowerCase()
 
   try {
-    const existingUser = await pool.query(
-      'SELECT id FROM users WHERE email = $1',
+    const [existingUsers] = await pool.query(
+      'SELECT id FROM users WHERE email = ?',
       [normalizedEmail]
     )
 
-    if (existingUser.rows.length > 0) {
+    if (existingUsers.length > 0) {
       return res.status(409).json({
         error: 'An account with this email already exists',
       })
     }
 
-    const roleResult = await pool.query(
+    const [roles] = await pool.query(
       "SELECT id FROM roles WHERE name = 'customer'"
     )
 
     const passwordHash = await bcrypt.hash(password, 12)
 
-    const newUser = await pool.query(
+    const [result] = await pool.query(
       `INSERT INTO users
        (email, password_hash, role_id, first_name, last_name)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING id, email, first_name, last_name, created_at`,
+       VALUES (?, ?, ?, ?, ?)`,
       [
         normalizedEmail,
         passwordHash,
-        roleResult.rows[0].id,
+        roles[0].id,
         firstName.trim(),
         lastName.trim(),
       ]
     )
 
+    // MySQL has no RETURNING, so read the new row back by its id
+    const [newUsers] = await pool.query(
+      'SELECT id, email, first_name, last_name, created_at FROM users WHERE id = ?',
+      [result.insertId]
+    )
+
     res.status(201).json({
       message: 'Account created successfully',
-      user: newUser.rows[0],
+      user: newUsers[0],
     })
   } catch (error) {
+    // Two sign-ups with the same email at the same moment can both pass the check above
+    if (error.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({
+        error: 'An account with this email already exists',
+      })
+    }
     next(error)
   }
 }
