@@ -1,18 +1,707 @@
-body {
-  margin: 0;
-  font-family: system-ui, sans-serif;
-  background: #f4f7f1;
-  color: #23301f;
+
+/* =========================
+   Global Styles
+========================= */
+
+* {
+  box-sizing: border-box;
 }
 
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+/* =========================
+   Header - Desktop
+========================= */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 3rem;
+  background-color: #f4f2e9;
+  position: relative;
+}
+
+.logo {
+  color: #263d2b;
+  font-size: 1.6rem;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.navigation,
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.header a {
+  color: #263d2b;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.header a:hover {
+  color: #758568;
+}
+
+.menu-toggle {
+  display: none;
+}
+
+/* =========================
+   Hero - Desktop
+========================= */
+
 .home {
-  max-width: 40rem;
-  margin: 0 auto;
-  padding: 4rem 1rem;
+  max-width: 100%;
+  min-height: 550px;
+  margin: 0;
+  padding: 7rem 2rem;
+  background-color: #f4f2e9;
+  color: #263d2b;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.home h1 {
+  font-size: 3.5rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.home p {
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+}
+
+.hero-buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.hero-buttons a {
+  display: inline-block;
+  padding: 0.9rem 1.8rem;
+  background-color: #263d2b;
+  color: #f4f2e9;
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: background-color 0.2s;
+}
+
+.hero-buttons a:hover {
+  background-color: #758568;
+}
+
+/* =========================
+   Today Banner - Desktop
+========================= */
+
+.today-banner {
+  background-color: #263d2b;
+  color: #f4f2e9;
+  padding: 4rem 2rem;
   text-align: center;
 }
 
-.status {
+.today-content {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.today-label {
+  color: #a6b77a;
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  margin-bottom: 1rem;
+}
+
+.today-banner h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.today-banner h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.today-location {
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+
+.today-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.today-buttons a {
+  padding: 0.9rem 1.5rem;
+  border: 1px solid #f4f2e9;
+  color: #f4f2e9;
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+.today-buttons a:hover {
+  background-color: #f4f2e9;
+  color: #263d2b;
+}
+
+/* =========================
+   Mobile Layout
+========================= */
+
+@media (max-width: 768px) {
+
+  /* Header */
+
+  .header {
+    padding: 1rem 1.25rem;
+  }
+
+  .menu-toggle {
+    display: block;
+    background: none;
+    border: none;
+    color: #263d2b;
+    font-size: 1.6rem;
+    cursor: pointer;
+  }
+
+  .navigation {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: #f4f2e9;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.5rem;
+    z-index: 10;
+  }
+
+  .navigation.active {
+    display: flex;
+  }
+
+  .header-actions {
+    display: none;
+  }
+
+  /* Hero */
+
+  .home {
+    min-height: 500px;
+    padding: 5rem 1.25rem;
+  }
+
+  .home h1 {
+    font-size: 2.3rem;
+    line-height: 1.2;
+    margin-bottom: 1.25rem;
+  }
+
+  .home p {
+    font-size: 1rem;
+    line-height: 1.6;
+    max-width: 320px;
+    margin-bottom: 2rem;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+    width: 100%;
+    max-width: 280px;
+    gap: 0.8rem;
+  }
+
+  .hero-buttons a {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Today Banner */
+
+  .today-banner {
+    padding: 3rem 1.25rem;
+  }
+
+  .today-banner h2 {
+    font-size: 1.8rem;
+  }
+
+  .today-banner h3 {
+    font-size: 1.3rem;
+  }
+
+  .today-buttons {
+    flex-direction: column;
+    max-width: 280px;
+    margin: 2rem auto 0;
+  }
+
+  .today-buttons a {
+    text-align: center;
+  }
+}
+
+/* =========================
+   Featured Products
+========================= */
+
+.products-section {
+  padding: 4rem 2rem;
+  background-color: #f4f2e9;
+  color: #263d2b;
+  text-align: center;
+}
+
+.products-section h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.products-section > p {
+  margin-bottom: 2.5rem;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.product-card {
+  text-align: center;
+}
+
+.product-image {
+  min-height: 220px;
+  background-color: #e5e3d8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #263d2b;
+  margin-bottom: 1rem;
+}
+
+.product-card h3 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.product-card p {
+  margin-bottom: 1rem;
+}
+
+.product-card button {
+  padding: 0.8rem 1.2rem;
+  background-color: #263d2b;
+  color: #f4f2e9;
+  border: none;
+  cursor: pointer;
+}
+
+/* =========================
+   Mobile Products
+========================= */
+
+@media (max-width: 768px) {
+  .products-section {
+    padding: 3rem 1.25rem;
+  }
+
+  .products-section h2 {
+    font-size: 1.8rem;
+  }
+
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem 1rem;
+  }
+
+  .product-image {
+    min-height: 160px;
+  }
+
+  .product-card button {
+    width: 100%;
+    padding: 0.7rem 0.5rem;
+    font-size: 0.75rem;
+  }
+}
+
+/* =========================
+   M.CHA Rewards Section
+========================= */
+
+.rewards-section {
+  /* Section background and text color */
+  background-color: #263d2b;
+  color: #f4f2e9;
+
+  /* Center all content */
+  text-align: center;
+
+  /* Add space inside the section */
+  padding: 5rem 2rem;
+}
+
+/* Small heading above the main title */
+.rewards-section > p:first-child {
+  color: #a6b77a;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  margin-bottom: 1rem;
+}
+
+/* Main section title */
+.rewards-section h2 {
+  font-size: 2.5rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+}
+
+/* Description text */
+.rewards-section p:nth-of-type(2) {
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+/* Learn More link */
+.rewards-section a {
+  display: inline-block;
+  padding: 0.9rem 1.8rem;
+  border: 1px solid #f4f2e9;
+  color: #f4f2e9;
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+/* Change link appearance when hovered */
+.rewards-section a:hover {
+  background-color: #f4f2e9;
+  color: #263d2b;
+}
+
+/* =========================
+   Rewards - Mobile Layout
+========================= */
+
+@media (max-width: 768px) {
+  .rewards-section {
+    /* Reduce padding on smaller screens */
+    padding: 3.5rem 1.25rem;
+  }
+
+  .rewards-section h2 {
+    font-size: 2rem;
+  }
+
+  .rewards-section > p:nth-of-type(2) {
+    font-size: 0.95rem;
+  }
+}
+
+/* =========================
+   Customer Reviews Section
+========================= */
+
+.reviews-section {
+  /* Section background and text color */
+  background-color: #f4f2e9;
+  color: #263d2b;
+
+  /* Center the section content */
+  text-align: center;
+
+  /* Add spacing around the section */
+  padding: 5rem 2rem;
+}
+
+/* Small heading above the main title */
+.reviews-section > p:first-child {
+  color: #758568;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  margin-bottom: 1rem;
+}
+
+/* Main section title */
+.reviews-section h2 {
+  font-size: 2.5rem;
+  font-weight: 500;
+  margin-bottom: 2.5rem;
+}
+
+/* Arrange review cards in a row */
+.reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* Individual review card */
+.review-card {
+  background-color: #e5e3d8;
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 180px;
+}
+
+/* Review text */
+.review-card p {
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+/* Customer name */
+.review-card h3 {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* =========================
+   Reviews - Mobile Layout
+========================= */
+
+@media (max-width: 768px) {
+  .reviews-section {
+    padding: 3.5rem 1.25rem;
+  }
+
+  .reviews-section h2 {
+    font-size: 2rem;
+  }
+
+  /* Stack review cards vertically on mobile */
+  .reviews-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .review-card {
+    min-height: 150px;
+    padding: 1.5rem;
+  }
+}
+
+/* =========================
+   Upcoming Pop-Ups Section
+========================= */
+
+.popups-section {
+  /* Section background and text color */
+  background-color: #e5e3d8;
+  color: #263d2b;
+
+  /* Center content */
+  text-align: center;
+
+  /* Add spacing */
+  padding: 5rem 2rem;
+}
+
+/* Small heading */
+.popups-section > p:first-child {
+  color: #758568;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  margin-bottom: 1rem;
+}
+
+/* Main heading */
+.popups-section h2 {
+  font-size: 2.5rem;
+  font-weight: 500;
+  margin-bottom: 2.5rem;
+}
+
+/* Arrange pop-up cards in a row */
+.popups-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  max-width: 1100px;
+  margin: 0 auto 2.5rem;
+}
+
+/* Individual pop-up card */
+.popup-card {
+  background-color: #f4f2e9;
+  padding: 2rem 1.5rem;
+}
+
+/* Event date */
+.popup-date {
+  color: #758568;
+  font-size: 1rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 1rem;
+}
+
+/* Event name */
+.popup-card h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Event location */
+.popup-card p:last-child {
   font-size: 0.9rem;
-  color: #5b6b55;
+}
+
+/* View schedule link */
+.popup-schedule-button {
+  display: inline-block;
+  padding: 0.9rem 1.8rem;
+  background-color: #263d2b;
+  color: #f4f2e9;
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+/* Hover effect */
+.popup-schedule-button:hover {
+  background-color: #758568;
+}
+
+/* =========================
+   Pop-Ups - Mobile Layout
+========================= */
+
+@media (max-width: 768px) {
+  .popups-section {
+    padding: 3.5rem 1.25rem;
+  }
+
+  .popups-section h2 {
+    font-size: 2rem;
+  }
+
+  /* Stack event cards vertically */
+  .popups-list {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .popup-card {
+    padding: 1.5rem;
+  }
+}
+
+/* =========================
+   Footer Section
+========================= */
+
+.footer {
+  /* Dark green footer background */
+  background-color: #263d2b;
+  color: #f4f2e9;
+
+  /* Add spacing */
+  padding: 4rem 3rem 1.5rem;
+
+  /* Arrange footer content */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+/* Brand information */
+.footer-brand h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+.footer-brand p {
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* Footer navigation links */
+.footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.footer-links a,
+.footer-contact a {
+  color: #f4f2e9;
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+/* Contact heading */
+.footer-contact h3 {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Hover effect for footer links */
+.footer a:hover {
+  color: #a6b77a;
+}
+
+/* Copyright information */
+.footer-bottom {
+  width: 100%;
+  border-top: 1px solid #758568;
+  padding-top: 1.5rem;
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.footer-bottom p {
+  font-size: 0.8rem;
+}
+
+/* =========================
+   Footer - Mobile Layout
+========================= */
+
+@media (max-width: 768px) {
+  .footer {
+    /* Stack footer content vertically */
+    flex-direction: column;
+    padding: 3rem 1.5rem 1.5rem;
+    gap: 2rem;
+  }
+
+  .footer-links {
+    /* Keep navigation links easy to read */
+    gap: 0.9rem;
+  }
+
+  .footer-bottom {
+    margin-top: 1rem;
+  }
 }
