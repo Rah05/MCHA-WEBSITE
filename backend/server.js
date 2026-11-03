@@ -1,4 +1,5 @@
 require('dotenv').config();
+const authRoutes = require('./routes/auth')
 const express = require('express');
 const cors = require('cors');
 
@@ -22,6 +23,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/health', healthRoutes);
+app.use('/api/auth', authRoutes);
 // Add new route files here, e.g. app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/auth', require('./routes/login')); // POST /api/auth/login (SCRUM-98)
