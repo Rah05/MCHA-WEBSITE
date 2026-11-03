@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt')
+const { hashPassword, MAX_PASSWORD_BYTES } = require('../utils/password')
 const pool = require('../db/pool')
 
 async function register(req, res, next) {
@@ -13,6 +13,12 @@ async function register(req, res, next) {
   if (password.length < 8) {
     return res.status(400).json({
       error: 'Password must be at least 8 characters',
+    })
+  }
+
+  if (Buffer.byteLength(password, 'utf8') > MAX_PASSWORD_BYTES) {
+    return res.status(400).json({
+      error: 'Password is too long',
     })
   }
 
@@ -34,7 +40,7 @@ async function register(req, res, next) {
       "SELECT id FROM roles WHERE name = 'customer'"
     )
 
-    const passwordHash = await bcrypt.hash(password, 12)
+    const passwordHash = await hashPassword(password)
 
     const [result] = await pool.query(
       `INSERT INTO users
