@@ -3,9 +3,19 @@ const express = require('express');
 const cors = require('cors');
 
 const healthRoutes = require('./routes/health');
+const { enforceHttps, securityHeaders } = require('./middleware/security');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Hosting platforms put a load balancer in front of us, so believe its
+// X-Forwarded-* headers for the client's protocol and IP address (SCRUM-53).
+app.set('trust proxy', 1);
+
+// Security first, before any route or body parsing: a request that arrived over
+// plain HTTP is turned away before we do any work on it.
+app.use(securityHeaders());
+app.use(enforceHttps);
 
 app.use(cors());
 app.use(express.json());
