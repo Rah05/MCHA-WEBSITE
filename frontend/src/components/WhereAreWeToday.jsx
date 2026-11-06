@@ -1,30 +1,70 @@
 import { useState } from "react";
 import "./WhereAreWeToday.css";
 
-// Temporary example information.
-// Replace with confirmed M.CHA pop-up details or an API response.
-const initialLocation = {
+// Temporary data until the backend provides confirmed locations.
+// Do not treat this as a real scheduled M.CHA event.
+const fallbackLocation = {
+id: "pending",
 name: "Location to be announced",
-address: "Check back for our next pop-up location.",
+address: "",
 date: "Coming soon",
 hours: "To be announced",
 status: "upcoming",
+description:
+"Our next pop-up location and hours have not been announced yet. Check back for updates.",
 };
 
+function normalizeLocation(location) {
+return {
+...fallbackLocation,
+...(location || {}),
+};
+}
+
+function getStatusText(status) {
+switch (status) {
+case "open":
+return "Currently open";
+case "closed":
+return "Currently closed";
+case "upcoming":
+return "Upcoming pop-up";
+case "cancelled":
+return "Pop-up cancelled";
+default:
+return "Location information";
+}
+}
+
 export default function WhereAreWeToday({
-location = initialLocation,
+location,
+locations,
 }) {
 const [showDetails, setShowDetails] = useState(false);
 
-const hasAddress =
-location.address &&
-location.address !== initialLocation.address;
+const availableLocations =
+Array.isArray(locations) && locations.length > 0
+? locations
+: [location || fallbackLocation];
+
+const [selectedId, setSelectedId] = useState(null);
+
+const selectedLocation =
+availableLocations.find(
+(item) => String(item.id) === String(selectedId)
+) || availableLocations[0];
+
+const current = normalizeLocation(selectedLocation);
+
+const hasAddress = Boolean(current.address?.trim());
 
 const mapUrl = hasAddress
 ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-location.address
+current.address
 )}`
 : null;
+
+const statusText = getStatusText(current.status);
 
 return (
 <section
@@ -49,17 +89,44 @@ location, hours, and upcoming appearances.
 <div className="mcha-where__status">
 <span
 className={`mcha-where__dot ${
-location.status === "open" ? "is-open" : ""
+current.status === "open" ? "is-open" : ""
 }`}
 />
-{location.status === "open"
-? "Pop-up currently open"
-: "Next pop-up information"}
+{statusText}
 </div>
+
+{availableLocations.length > 1 && (
+<div className="mcha-where__selector">
+<label htmlFor="mcha-location-select">
+Select a pop-up
+</label>
+
+<select
+id="mcha-location-select"
+value={String(selectedLocation.id)}
+onChange={(event) => {
+setSelectedId(event.target.value);
+setShowDetails(false);
+}}
+>
+{availableLocations.map((item) => (
+<option
+key={item.id}
+value={String(item.id)}
+>
+{item.name}
+</option>
+))}
+</select>
+</div>
+)}
 
 <div className="mcha-where__card">
 <div className="mcha-where__card-heading">
-<span className="mcha-where__card-icon">
+<span
+className="mcha-where__card-icon"
+aria-hidden="true"
+>
 📍
 </span>
 
@@ -67,12 +134,15 @@ location.status === "open" ? "is-open" : ""
 <span className="mcha-where__label">
 OUR LOCATION
 </span>
-<h3>{location.name}</h3>
+
+<h3>{current.name}</h3>
 </div>
 </div>
 
 <p className="mcha-where__address">
-{location.address}
+{hasAddress
+? current.address
+: "Check back for our next pop-up location."}
 </p>
 
 <div className="mcha-where__facts">
@@ -80,23 +150,23 @@ OUR LOCATION
 <span className="mcha-where__label">
 DATE
 </span>
-<strong>{location.date}</strong>
+<strong>{current.date}</strong>
 </div>
 
 <div>
 <span className="mcha-where__label">
 HOURS
 </span>
-<strong>{location.hours}</strong>
+<strong>{current.hours}</strong>
 </div>
 </div>
 
 {showDetails && (
 <div className="mcha-where__extra">
+<p>{current.description}</p>
+
 <p>
-We're excited to serve you freshly
-prepared matcha. Watch this space
-for confirmed pop-up announcements.
+<strong>Status:</strong> {statusText}
 </p>
 
 {mapUrl && (
@@ -114,12 +184,13 @@ Open location in Google Maps
 <button
 type="button"
 className="mcha-where__details-button"
-onClick={() => setShowDetails(!showDetails)}
+onClick={() => setShowDetails((prev) => !prev)}
 aria-expanded={showDetails}
 >
 {showDetails
 ? "Hide Details"
 : "View Pop-up Details"}
+
 <span aria-hidden="true">
 {showDetails ? "−" : "+"}
 </span>
@@ -131,9 +202,11 @@ aria-expanded={showDetails}
 <div className="mcha-where__visual-circle">
 <div className="mcha-where__cup">
 <div className="mcha-where__cup-top" />
+
 <div className="mcha-where__cup-body">
 <span>M.CHA</span>
 </div>
+
 <div className="mcha-where__cup-shadow" />
 </div>
 </div>
