@@ -226,6 +226,19 @@ Rules the database enforces:
 - **Never send `wholesale_price` to customers.** Only include it in admin/wholesale API responses.
 - Prices are dollars (`DECIMAL`) and come back as numbers. Square expects cents, so convert with `Math.round(price * 100)` when creating a payment.
 
+## Order history API (SCRUM-82, SCRUM-83)
+
+Both routes need a signed-in user (`Authorization: Bearer <token>`).
+
+| Route | Who | Returns |
+|---|---|---|
+| `GET /api/orders` | Signed-in user | Their own orders, newest first: `{ orders: [{ orderNumber, createdAt, status, orderType, total, itemCount }] }`. An empty array means no orders yet (show an empty state). |
+| `GET /api/orders/:orderId` | The order's customer, or admin/staff | `{ order: { ...same fields, subtotal, customerName, customerEmail, notes, items: [{ name, unitPrice, quantity, lineTotal }] } }` |
+
+- A customer asking for someone else's order gets **404 "Order not found"** (not 403), so order numbers can't be guessed.
+- Item names and prices are the ones saved at checkout, so they don't change if a product is edited later.
+- `status` is one of `pending`, `paid`, `fulfilled`, `cancelled`, `refunded`.
+
 ## Querying MySQL
 
 Import the shared pool with `const pool = require('../db/pool');`. If you're used to Postgres (`pg`), three things are different:
