@@ -27,6 +27,7 @@ app.use('/api/auth', authRoutes);
 // Add new route files here, e.g. app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/auth', require('./routes/login')); // POST /api/auth/login (SCRUM-98)
+app.use('/api/orders', require('./routes/orders')); // order history (SCRUM-82, SCRUM-83)
 
 // Basic error handler
 app.use((err, req, res, next) => {
