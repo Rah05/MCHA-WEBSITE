@@ -3,6 +3,7 @@ import AdminProducts from "./pages/AdminProducts";
 import EventRequests from "./pages/EventRequests";
 import EventBooking from "./pages/EventBooking";
 import WhereAreWeToday from "./components/WhereAreWeToday";
+import Shop from "./pages/ShopPage";
 
 function App() {
 const path =
@@ -23,6 +24,10 @@ return <EventBooking />;
 
 case "/preview/location-banner":
 return <WhereAreWeToday />;
+
+case "/shop":
+case "/preview/shop":
+return <Shop />;
 
 default:
 return (
