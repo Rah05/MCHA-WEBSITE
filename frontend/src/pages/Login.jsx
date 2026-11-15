@@ -64,6 +64,10 @@ function Login() {
             required
           />
 
+          <p className="login-forgot">
+            <a href="/forgot-password">Forgot password?</a>
+          </p>
+
           {message && <p className="login-error" role="alert">{message}</p>}
 
           <Button type="submit" disabled={submitting}>

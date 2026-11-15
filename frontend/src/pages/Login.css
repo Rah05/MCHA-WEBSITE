@@ -21,3 +21,22 @@
   margin: var(--space-3) 0 0;
   font-size: var(--text-sm);
 }
+
+/* Shared with ForgotPassword and ResetPassword (SCRUM-100). */
+.login-forgot {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-sm);
+  text-align: right;
+}
+
+/* Same green and weight as "Create an account" (from .login-text a in Registration.css). */
+.login-forgot a {
+  color: #607d43;
+  font-weight: bold;
+}
+
+.login-intro {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
