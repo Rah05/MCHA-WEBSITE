@@ -1,5 +1,7 @@
+
 import Home from './pages/Home'
 import Registration from './pages/Registration'
+import Login from './pages/Login'
 import OrderHistory from './pages/OrderHistory'
 import OrderDetail from './pages/OrderDetail'
 
@@ -8,6 +10,10 @@ function App() {
 
   if (path === '/register') {
     return <Registration />
+  }
+
+  if (path === '/login') {
+    return <Login />
   }
 
   if (path === '/orders') {
