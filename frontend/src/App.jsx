@@ -4,6 +4,7 @@ import Login from './pages/Login'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import OrderHistory from './pages/OrderHistory'
+import OrderDetail from './pages/OrderDetail'
 import AdminProducts from './pages/AdminProducts'
 
 function App() {
@@ -28,6 +29,10 @@ function App() {
 
   if (path === '/orders') {
     return <OrderHistory />
+  }
+
+  if (path.startsWith('/orders/')) {
+    return <OrderDetail />
   }
 
   if (path === '/admin/products') {
