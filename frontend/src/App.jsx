@@ -1,6 +1,7 @@
 
 import Home from './pages/Home'
 import Registration from './pages/Registration'
+import AdminProducts from './pages/AdminProducts'
 import Login from './pages/Login'
 import OrderHistory from './pages/OrderHistory'
 import OrderDetail from './pages/OrderDetail'
@@ -22,6 +23,10 @@ function App() {
 
   if (path.startsWith('/orders/')) {
     return <OrderDetail />
+  }
+
+  if (path === '/admin/products') {
+    return <AdminProducts />
   }
 
   return <Home />
