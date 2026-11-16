@@ -239,6 +239,35 @@ Both routes need a signed-in user (`Authorization: Bearer <token>`).
 - Item names and prices are the ones saved at checkout, so they don't change if a product is edited later.
 - `status` is one of `pending`, `paid`, `fulfilled`, `cancelled`, `refunded`.
 
+## Admin products API (SCRUM-63 to SCRUM-66)
+
+Every route is **admin only** (401 if signed out, 403 for staff and customers). Send JSON with `Content-Type: application/json`.
+
+| Route | What it does | Returns |
+|---|---|---|
+| `GET /api/admin/products` | All products, including hidden ones and wholesale prices | `{ products: [...] }` |
+| `GET /api/admin/products/:id` | One product, to fill in the edit form | `{ product }` |
+| `POST /api/admin/products` | Add a product (SCRUM-63) | **201** `{ product }` |
+| `PATCH /api/admin/products/:id` | Edit a product; only the fields you send change (SCRUM-64) | `{ product }` |
+| `PATCH /api/admin/products/:id/price-availability` | Change price, stock, or availability only (SCRUM-66) | `{ product }` |
+| `DELETE /api/admin/products/:id` | Delete, or hide it if it has been ordered (SCRUM-65) | `{ id, action }` |
+
+Product fields (same names in requests and responses):
+
+| Field | Type | Notes |
+|---|---|---|
+| `name` | text, up to 150 | **Required** when adding. Must be unique (409 if taken). |
+| `category` | text, up to 50 | **Required** when adding, e.g. `Matcha`, `Roasted tea`, `Teaware`, `Drinks (pop-up)` |
+| `price` | number | **Required** when adding. Dollars, at most 2 decimals. Send a number, not a string (`Number(input.value)`). |
+| `wholesalePrice` | number or `null` | `null` means not sold wholesale |
+| `description` | text or `null` | |
+| `stock` | whole number | Defaults to 0 |
+| `stockLabel` | text or `null` | Shown instead of a count, e.g. `Made to order` |
+| `imageUrl` | `http(s)` link or `null` | Image upload isn't built yet, so use a link for now |
+| `isAvailable` | `true` / `false` | Defaults to `true`. `false` hides it from the shop |
+
+Responses also include `id`, `createdAt`, and `updatedAt`. Invalid input returns **400** with an `error` message you can show next to the form, and unknown fields (e.g. `retail`) are rejected rather than ignored.
+
 ## Querying MySQL
 
 Import the shared pool with `const pool = require('../db/pool');`. If you're used to Postgres (`pg`), three things are different:
