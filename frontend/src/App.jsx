@@ -1,4 +1,3 @@
-
 import Home from './pages/Home'
 import Registration from './pages/Registration'
 import AdminProducts from './pages/AdminProducts'
@@ -6,30 +5,50 @@ import Login from './pages/Login'
 import OrderHistory from './pages/OrderHistory'
 import OrderDetail from './pages/OrderDetail'
 
+// SCRUM-24: Event Booking
+import EventBooking from './pages/EventBooking'
+import EventRequests from './pages/EventRequests'
+
 function App() {
-  const path = window.location.pathname
+const path = window.location.pathname.replace(/\/+$/, '') || '/'
 
-  if (path === '/register') {
-    return <Registration />
-  }
+// Registration
+if (path === '/register') {
+return <Registration />
+}
 
-  if (path === '/login') {
-    return <Login />
-  }
+// Login
+if (path === '/login') {
+return <Login />
+}
 
-  if (path === '/orders') {
-    return <OrderHistory />
-  }
+// Order History
+if (path === '/orders') {
+return <OrderHistory />
+}
 
-  if (path.startsWith('/orders/')) {
-    return <OrderDetail />
-  }
+// Order Details
+if (path.startsWith('/orders/')) {
+return <OrderDetail />
+}
 
-  if (path === '/admin/products') {
-    return <AdminProducts />
-  }
+// Admin Product Management
+if (path === '/admin/products') {
+return <AdminProducts />
+}
 
-  return <Home />
+// SCRUM-24: Customer Event Booking
+if (path === '/events/book') {
+return <EventBooking />
+}
+
+// SCRUM-24: Admin Event Requests
+if (path === '/admin/events') {
+return <EventRequests />
+}
+
+// Home Page
+return <Home />
 }
 
 export default App
