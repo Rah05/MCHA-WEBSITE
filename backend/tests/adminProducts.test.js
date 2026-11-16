@@ -205,4 +205,48 @@ describe('admin add and edit product API (SCRUM-63, SCRUM-64)', () => {
       assert.strictEqual((await call('GET', `/api/admin/products/${bad}`, { token })).status, 400, bad);
     }
   });
+
+  test('price/availability route updates price, stock, and visibility (SCRUM-66)', async () => {
+    const [[row]] = await pool.query('SELECT id FROM products WHERE name = ?', [`${PREFIX}Genmaicha 50g`]);
+    const res = await call('PATCH', `/api/admin/products/${row.id}/price-availability`, {
+      token: tokens.boss,
+      body: { price: 21.5, stock: 7, stockLabel: 'Seasonal', isAvailable: false },
+    });
+    assert.strictEqual(res.status, 200);
+    assert.deepStrictEqual(
+      [res.body.product.price, res.body.product.stock, res.body.product.stockLabel, res.body.product.isAvailable],
+      [21.5, 7, 'Seasonal', false]
+    );
+  });
+
+  test('price/availability route rejects values too big for the database with 400, not 500', async () => {
+    const [[row]] = await pool.query('SELECT id FROM products WHERE name = ?', [`${PREFIX}Genmaicha 50g`]);
+    const path = `/api/admin/products/${row.id}/price-availability`;
+    const bad = [
+      { price: 1e12 }, // over DECIMAL(10,2)'s 99999999.99
+      { price: 100000000 },
+      { price: 1.239 }, // more than 2 decimals
+      { stock: 3e9 }, // over INT's 2147483647
+      { stock: 2147483648 },
+    ];
+    for (const body of bad) {
+      const res = await call('PATCH', path, { token: tokens.boss, body });
+      assert.strictEqual(res.status, 400, JSON.stringify(body));
+    }
+    const ok = await call('PATCH', path, { token: tokens.boss, body: { price: 99999999.99, stock: 2147483647 } });
+    assert.strictEqual(ok.status, 200, 'the largest values the columns allow still work');
+
+    const [[after]] = await pool.query('SELECT price, stock FROM products WHERE id = ?', [row.id]);
+    assert.deepStrictEqual([after.price, after.stock], [99999999.99, 2147483647]);
+  });
+
+  test('delete removes a never-ordered product (SCRUM-65)', async () => {
+    const [[row]] = await pool.query('SELECT id FROM products WHERE name = ?', [`${PREFIX}Gyokuro 20g`]);
+    const res = await call('DELETE', `/api/admin/products/${row.id}`, { token: tokens.boss });
+    assert.strictEqual(res.status, 200);
+    assert.strictEqual(res.body.action, 'deleted');
+    const [rows] = await pool.query('SELECT id FROM products WHERE id = ?', [row.id]);
+    assert.strictEqual(rows.length, 0);
+    assert.strictEqual((await call('DELETE', `/api/admin/products/${row.id}`, { token: tokens.boss })).status, 404);
+  });
 });

@@ -44,15 +44,19 @@ async function updatePriceAvailability(req, res, next) {
   const fields = [];
   const values = [];
 
+  // Same limits as add/edit (isPrice, MAX_STOCK below), so a value too big for the
+  // DECIMAL(10,2) / INT columns is a 400 here instead of a MySQL out-of-range 500.
   if (price !== undefined) {
-    if (typeof price !== 'number' || !Number.isFinite(price) || price < 0) {
-      return res.status(400).json({ error: 'Price must be a number, 0 or more' });
+    if (!isPrice(price)) {
+      return res
+        .status(400)
+        .json({ error: 'Price must be a number from 0 to 99999999.99 with at most 2 decimals' });
     }
     fields.push('price = ?');
     values.push(price);
   }
   if (stock !== undefined) {
-    if (!Number.isInteger(stock) || stock < 0) {
+    if (!Number.isInteger(stock) || stock < 0 || stock > MAX_STOCK) {
       return res.status(400).json({ error: 'Stock must be a whole number, 0 or more' });
     }
     fields.push('stock = ?');
