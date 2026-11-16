@@ -1,0 +1,136 @@
+/* Add / edit product dialog (SCRUM-63, SCRUM-64). Uses the admin colors from AdminProducts.css. */
+
+.product-form-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 48px 16px;
+  overflow-y: auto;
+  background: rgba(38, 61, 43, 0.45);
+}
+
+.product-form {
+  width: 100%;
+  max-width: 640px;
+  padding: 28px;
+  border: 1px solid var(--admin-border);
+  border-radius: 6px;
+  background: var(--admin-surface);
+  color: var(--admin-green);
+  box-shadow: 0 20px 50px rgba(38, 61, 43, 0.25);
+}
+
+.product-form-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.product-form-header h2 {
+  margin: 0;
+  font-family: Georgia, serif;
+  font-size: 24px;
+  font-weight: normal;
+}
+
+.product-form-alert {
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border-left: 3px solid #a3412f;
+  background: #f8e9e4;
+  color: #7a2d20;
+  font-size: 13px;
+}
+
+.product-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 18px;
+}
+
+.product-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.product-form-field.wide,
+.product-form-check.wide {
+  grid-column: 1 / -1;
+}
+
+.product-form-field input,
+.product-form-field textarea {
+  padding: 10px 12px;
+  border: 1px solid var(--admin-border);
+  border-radius: 4px;
+  background: white;
+  color: var(--admin-green);
+  font: 14px Arial, sans-serif;
+}
+
+.product-form-field textarea {
+  resize: vertical;
+}
+
+.product-form-field input:focus,
+.product-form-field textarea:focus {
+  outline: 2px solid var(--admin-sage);
+  outline-offset: 1px;
+}
+
+.product-form-field input[aria-invalid='true'] {
+  border-color: #a3412f;
+}
+
+.product-form-error {
+  color: #a3412f;
+  font-weight: normal;
+  letter-spacing: 0;
+}
+
+.product-form-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.product-form-check input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--admin-green);
+}
+
+.product-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.product-form-actions button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+@media (max-width: 600px) {
+  .product-form {
+    padding: 20px 16px;
+  }
+
+  .product-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .product-form-actions {
+    flex-direction: column-reverse;
+  }
+}
