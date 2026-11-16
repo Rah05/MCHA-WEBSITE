@@ -97,7 +97,11 @@ function OrderHistory() {
             <tbody>
               {orders.map((order) => (
                 <tr key={order.id}>
-                  <td>#{order.orderNumber}</td>
+                  <td>
+                    <a href={`/orders/${order.id}`}>
+                      #{order.orderNumber}
+                    </a>
+                  </td>
                   <td>{formatDate(order.createdAt)}</td>
                   <td>
                     <span className={`order-status order-status--${order.status}`}>

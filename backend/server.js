@@ -27,6 +27,7 @@ app.use('/api/auth', authRoutes);
 // Add new route files here, e.g. app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/auth', require('./routes/login')); // POST /api/auth/login (SCRUM-98)
+app.use('/api/auth', require('./routes/password')); // forgot/reset password (SCRUM-100)
 app.use('/api/orders', require('./routes/orders')); // order history (SCRUM-82, SCRUM-83)
 app.use('/api/admin/products', require('./routes/adminProducts')); // admin products: add, edit, delete, price (SCRUM-63 to 66)
 
