@@ -1,45 +1,69 @@
-import Home from './pages/Home'
-import Registration from './pages/Registration'
-import Login from './pages/Login'
-import ForgotPassword from './pages/ForgotPassword'
-import ResetPassword from './pages/ResetPassword'
-import OrderHistory from './pages/OrderHistory'
-import OrderDetail from './pages/OrderDetail'
-import AdminProducts from './pages/AdminProducts'
+import Home from "./pages/Home";
+import Registration from "./pages/Registration";
+import Login from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+import OrderHistory from "./pages/OrderHistory";
+import OrderDetail from "./pages/OrderDetail";
+
+import AdminProducts from "./pages/AdminProducts";
+import EventRequests from "./pages/EventRequests";
+import EventBooking from "./pages/EventBooking";
+import WhereAreWeToday from "./components/WhereAreWeToday";
+import Shop from "./pages/ShopPage";
 
 function App() {
-  const path = window.location.pathname
+const path =
+window.location.pathname.replace(/\/+$/, "") || "/";
 
-  if (path === '/register') {
-    return <Registration />
-  }
+switch (path) {
+case "/":
+return <Home />;
 
-  if (path === '/login') {
-    return <Login />
-  }
+case "/register":
+return <Registration />;
 
-  // Forgot/reset password flow (SCRUM-100)
-  if (path === '/forgot-password') {
-    return <ForgotPassword />
-  }
+case "/login":
+return <Login />;
 
-  if (path === '/reset-password') {
-    return <ResetPassword />
-  }
+case "/forgot-password":
+return <ForgotPassword />;
 
-  if (path === '/orders') {
-    return <OrderHistory />
-  }
+case "/reset-password":
+return <ResetPassword />;
 
-  if (path.startsWith('/orders/')) {
-    return <OrderDetail />
-  }
+case "/orders":
+return <OrderHistory />;
 
-  if (path === '/admin/products') {
-    return <AdminProducts />
-  }
+case "/admin/products":
+return <AdminProducts />;
 
-  return <Home />
+case "/admin/events":
+return <EventRequests />;
+
+case "/events/book":
+return <EventBooking />;
+
+case "/preview/location-banner":
+return <WhereAreWeToday />;
+
+case "/shop":
+case "/preview/shop":
+return <Shop />;
+
+default:
+if (path.startsWith("/orders/")) {
+return <OrderDetail />;
 }
 
-export default App
+return (
+<main style={{ padding: 40, textAlign: "center" }}>
+<h1>Page Not Found</h1>
+<p>The page you requested does not exist.</p>
+<a href="/">Return to Home</a>
+</main>
+);
+}
+}
+
+export default App;
