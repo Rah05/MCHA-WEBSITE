@@ -6,6 +6,28 @@ const fs = require('fs');
 const path = require('path');
 const mysql = require('mysql2/promise');
 
+// schema.sql uses CREATE TABLE IF NOT EXISTS, so a column added to a table later never
+// reaches a database that already has that table. Each entry here adds one such column
+// when it's missing, so `npm run db:setup` brings an existing database up to date
+// without deleting anything. MySQL 8 has no ADD COLUMN IF NOT EXISTS, hence the check.
+const COLUMN_UPDATES = [
+  // SCRUM-101: lets a password reset sign the user out on every device.
+  { table: 'users', column: 'token_version', definition: 'INT NOT NULL DEFAULT 0 AFTER reset_token_expires' },
+];
+
+async function applyColumnUpdates(db) {
+  for (const { table, column, definition } of COLUMN_UPDATES) {
+    const [rows] = await db.query(
+      'SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?',
+      [table, column]
+    );
+    if (rows.length === 0) {
+      await db.query(`ALTER TABLE \`${table}\` ADD COLUMN \`${column}\` ${definition}`);
+      console.log(`Added column ${table}.${column}.`);
+    }
+  }
+}
+
 async function main() {
   if (!process.env.DATABASE_URL) {
     console.error('DATABASE_URL is not set. Copy .env.example to .env and fill it in.');
@@ -36,6 +58,7 @@ async function main() {
     multipleStatements: true,
   });
   await db.query(schema);
+  await applyColumnUpdates(db);
   if (process.argv.includes('--seed')) {
     await db.query(fs.readFileSync(path.join(__dirname, 'seed.sql'), 'utf8'));
     const [[{ count }]] = await db.query('SELECT COUNT(*) AS count FROM products');

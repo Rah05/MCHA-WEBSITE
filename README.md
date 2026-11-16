@@ -124,6 +124,35 @@ Open http://localhost:5173. Requests to `/api/...` are forwarded to the backend 
 | `frontend/` | `npm run build` | Production build into `frontend/dist/` |
 | `frontend/` | `npm run lint` | Lint with oxlint |
 
+## Running the tests
+
+The backend tests use Node's built-in test runner, so there's nothing extra to install. Most of them need MySQL running and the database set up:
+
+```bash
+cd backend
+npm run db:setup   # first time, and again after pulling database changes
+npm test
+```
+
+A passing run ends with `# fail 0`. To run a single file: `node --test tests/login.test.js`.
+
+| File | What it checks | Ticket |
+|---|---|---|
+| `tests/login.test.js` | Valid and invalid sign-in: right password, wrong password, unknown email (same reply), missing fields | SCRUM-98 |
+| `tests/auth.test.js` | Role restrictions: guests get 401, the wrong role gets 403, tampered or expired tokens are rejected, role changes apply immediately | SCRUM-55 |
+| `tests/passwordReset.test.js` | Forgot/reset password: expired, reused, and made-up links are rejected; short passwords; a reset signs the user out on every device | SCRUM-100, SCRUM-101 |
+| `tests/password.test.js` | Password hashing with bcrypt (no database needed) | SCRUM-54 |
+| `tests/https.test.js` | HTTPS redirect and security headers (no database needed) | SCRUM-53, SCRUM-56 |
+| `tests/orders.test.js` | Order history API | SCRUM-82, SCRUM-83 |
+| `tests/schema.test.js` | Database rules for products and orders | SCRUM-120 |
+
+Good to know:
+
+- The tests use the database in `backend/.env`. Each file creates its own test users (emails ending in `example.com`) and deletes them afterwards, so your own data is left alone. **Never run the tests against the production database.**
+- No email is sent. The reset tests read the link from the console, the same way you would locally.
+- If `JWT_SECRET` isn't set, the tests use a throwaway one.
+- If login tests fail with a 500 error after a pull, run `npm run db:setup`. A new column was probably added.
+
 ## Git workflow
 
 1. **Start from the latest `develop`:**
@@ -263,3 +292,25 @@ const [[user]] = await pool.query('SELECT id, email, created_at FROM users WHERE
 ```
 
 Always pass values as the second argument (`[...]`), never by building the SQL string yourself. That keeps queries safe from SQL injection.
+
+## Troubleshooting
+
+| Problem | Cause and fix |
+|---|---|
+| `ECONNREFUSED ...:3306` | MySQL isn't running. Windows: open Services (Win+R, `services.msc`) and start **MySQL80**. Mac: `brew services start mysql`. |
+| `ER_ACCESS_DENIED_ERROR` | The username or password in `DATABASE_URL` is wrong. Test it with `mysql -u root -p`, URL-encode special characters (`@` becomes `%40`), and make sure no Windows environment variable named `DATABASE_URL` overrides `backend/.env`. |
+| `Cannot find module 'xyz'` | A teammate added a package. Run `npm install` in `backend/` and `frontend/`, then restart. |
+| `ENOENT ... package.json` | You're in the wrong folder. Run `npm` commands from `backend/` or `frontend/`, not the project root. |
+| `mysql: command not found` | Use the full path to `mysql.exe` (for example `C:\Program Files\MySQL\MySQL Server 8.0\bin\`), or add that folder to your PATH. |
+| Frontend shows "API status: unreachable" | The backend isn't running. Start it in its own terminal and refresh. |
+| `EADDRINUSE ... :3000` | Another process is using port 3000. Close the old backend terminal. |
+
+## After pulling new code
+
+Run `npm install` in `backend/` and `frontend/` after every `git pull` or merge of `develop`, then restart both servers. If the pull changed `backend/db/schema.sql`, also run `npm run db:setup` in `backend/`. It adds new tables and columns without deleting your data.
+
+## Windows notes
+
+- Use Git Bash so commands like `cp` work.
+- Clone into a folder outside OneDrive (for example `~/dev`). OneDrive slows `npm install` and can lock files.
+- Install MySQL with the MySQL Installer for Windows, and remember the root password you set.
