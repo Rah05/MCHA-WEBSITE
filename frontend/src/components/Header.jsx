@@ -1,8 +1,22 @@
+import { useEffect, useState } from 'react'
+import { getSessionToken, msUntilSessionExpires, logOut, endExpiredSession } from '../api/auth'
 
-import { useState } from 'react'
+// setTimeout can't wait longer than this (about 24.8 days); longer waits fire immediately.
+const MAX_TIMEOUT_MS = 2 ** 31 - 1
 
 function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [signedIn] = useState(() => Boolean(getSessionToken()))
+
+  // Session expiry (SCRUM-101): if the token runs out while this page is open, sign out
+  // and send the user to log in again, rather than leaving a page that silently fails.
+  useEffect(() => {
+    if (!signedIn) return
+    const ms = msUntilSessionExpires()
+    if (ms === null || ms > MAX_TIMEOUT_MS) return
+    const timer = setTimeout(endExpiredSession, ms)
+    return () => clearTimeout(timer)
+  }, [signedIn])
 
   return (
     <header className="header">
@@ -26,7 +40,13 @@ function Header() {
       </nav>
 
       <div className="header-actions">
-        <a href="/login">LOG IN</a>
+        {signedIn ? (
+          <button type="button" className="header-logout" onClick={logOut}>
+            LOG OUT
+          </button>
+        ) : (
+          <a href="/login">LOG IN</a>
+        )}
         <a href="/cart">CART (2)</a>
       </div>
     </header>

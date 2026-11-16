@@ -50,6 +50,29 @@ body {
   color: #758568;
 }
 
+
+/* LOG OUT is a button (it does something rather than going somewhere) styled to match
+   the header links next to it (SCRUM-101). height, margin, border-radius and
+   letter-spacing are reset because Registration.css styles every <button> on the site. */
+.header-logout {
+  height: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  font: inherit;
+  color: #263d2b;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: normal;
+  cursor: pointer;
+}
+
+.header-logout:hover {
+  color: #758568;
+}
+
 .menu-toggle {
   display: none;
 }
@@ -57,6 +80,28 @@ body {
 /* =========================
    Hero - Desktop
 ========================= */
+
+/* LOG OUT is a button (it does something rather than going somewhere) styled to match
+   the header links next to it (SCRUM-101). height, margin, border-radius and
+   letter-spacing are reset because Registration.css styles every <button> on the site. */
+.header-logout {
+  height: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  font: inherit;
+  color: #263d2b;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: normal;
+  cursor: pointer;
+}
+
+.header-logout:hover {
+  color: #758568;
+}
 
 .home {
   max-width: 100%;

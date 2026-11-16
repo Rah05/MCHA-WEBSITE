@@ -41,8 +41,8 @@ async function login(req, res, next) {
 
   try {
     const [rows] = await pool.query(
-      `SELECT users.id, users.email, users.password_hash, users.first_name, users.last_name,
-              roles.name AS role
+            `SELECT users.id, users.email, users.password_hash, users.first_name, users.last_name,
+              users.token_version, roles.name AS role
        FROM users JOIN roles ON roles.id = users.role_id
        WHERE users.email = ?`,
       [normalizedEmail]

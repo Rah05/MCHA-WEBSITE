@@ -10,6 +10,9 @@ function Login() {
   const [message, setMessage] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
+  // Set when the session ran out and the header sent the user here (SCRUM-101).
+  const sessionExpired = new URLSearchParams(window.location.search).get('expired') === '1'
+
   function handleChange(event) {
     const { name, value } = event.target
 
@@ -43,6 +46,12 @@ function Login() {
   return (
     <main className="login-page">
       <Card title="Log in to M.CHA" className="login-card">
+        {sessionExpired && (
+          <p className="login-intro" role="status">
+            Your session has expired. Please log in again.
+          </p>
+        )}
+
         <form onSubmit={handleSubmit}>
           <FormField
             label="Email address"

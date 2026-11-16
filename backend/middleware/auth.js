@@ -18,10 +18,15 @@ function getSecret() {
 }
 
 // Create a login token for a user. Call this from the sign-in endpoint after the password checks out:
-//   const token = signToken(user);  // user needs an `id`
+//   const token = signToken(user);  // user needs an `id`, and should include `token_version`
 //   res.json({ token });
+//
+// `ver` is the user's token_version when the token was issued (SCRUM-101). Raising
+// users.token_version makes every older token fail in loadUser, which is how a password
+// reset signs the user out on every device. A user row without the field counts as 0.
 function signToken(user) {
-  return jwt.sign({ sub: String(user.id) }, getSecret(), {
+  return jwt.sign({ sub: String(user.id), ver: user.token_version || 0 }, getSecret(), {
+
     algorithm: 'HS256',
     expiresIn: TOKEN_EXPIRES_IN,
   });
@@ -35,16 +40,26 @@ function readBearerToken(req) {
 
 // Looks up the user on every request, so a deleted user or a role change takes effect right away
 // (a token alone would keep its old role until it expires).
+// Returns null (treated as signed out) if the token was issued before the user's last
+// "sign out everywhere", i.e. its `ver` is behind users.token_version (SCRUM-101).
+// Tokens issued before `ver` existed count as version 0, so they keep working until they expire.
 async function loadUser(token) {
   const payload = jwt.verify(token, getSecret(), { algorithms: ['HS256'] });
   const [rows] = await pool.query(
-    `SELECT users.id, users.email, users.first_name, users.last_name, roles.name AS role
+    `SELECT users.id, users.email, users.first_name, users.last_name, users.token_version,
+            roles.name AS role
      FROM users JOIN roles ON roles.id = users.role_id
      WHERE users.id = ?`,
     [payload.sub]
   );
-  return rows[0] || null;
+  const user = rows[0];
+  if (!user || (payload.ver || 0) !== user.token_version) {
+    return null;
+  }
+  delete user.token_version; // internal; req.user keeps its documented shape
+  return user;
 }
+
 
 // Requires a valid login. Sets req.user = { id, email, first_name, last_name, role }.
 // Responds 401 if the token is missing, invalid, expired, or the user no longer exists.

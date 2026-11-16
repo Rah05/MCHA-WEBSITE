@@ -225,16 +225,17 @@
      // password had changed but the old link still worked.
      await pool.query(
        `UPDATE users
-        SET password_hash = ?, reset_token = NULL, reset_token_expires = NULL
+            SET password_hash = ?, reset_token = NULL, reset_token_expires = NULL,
+            token_version = token_version + 1
         WHERE id = ?`,
        [newHash, user.id]
      );
  
-     // Worth knowing for SCRUM-101: any login token issued before this point keeps
-     // working until it expires on its own, because the tokens are stateless and the
-     // server holds no session to revoke. If the team later decides a password reset
-     // should kick existing sessions out, that is the change to make and this is where
-     // it would go.
+      // Bumping token_version in that same statement signs the user out on every device
+     // (SCRUM-101): any login token issued before now carries the old version and is
+     // refused by loadUser in middleware/auth.js. That is the point of a reset for someone
+     // who thinks their account was taken over. An ordinary "Log out" only clears the
+     // token in that one browser, so the user's other devices stay signed in.
      res.json({ message: 'Password updated. You can sign in with your new password.' });
    } catch (err) {
      next(err);
