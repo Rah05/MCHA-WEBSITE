@@ -1,0 +1,42 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--space-3);
+  background-color: var(--color-cream);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 26rem;
+}
+
+.login-error {
+  margin: 0 0 var(--space-3);
+  color: var(--color-error);
+}
+
+.login-text {
+  margin: var(--space-3) 0 0;
+  font-size: var(--text-sm);
+}
+
+/* Shared with ForgotPassword and ResetPassword (SCRUM-100). */
+.login-forgot {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-sm);
+  text-align: right;
+}
+
+/* Same green and weight as "Create an account" (from .login-text a in Registration.css). */
+.login-forgot a {
+  color: #607d43;
+  font-weight: bold;
+}
+
+.login-intro {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}

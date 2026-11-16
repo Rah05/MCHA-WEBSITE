@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS users (
   last_name VARCHAR(100),
   reset_token VARCHAR(255),
   reset_token_expires DATETIME,          -- stored in UTC
+  token_version INT NOT NULL DEFAULT 0,  -- in every login token; +1 signs the user out everywhere (SCRUM-101)
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_users_role FOREIGN KEY (role_id) REFERENCES roles(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
