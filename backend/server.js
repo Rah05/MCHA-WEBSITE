@@ -28,6 +28,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', require('./routes/users'));
 app.use('/api/auth', require('./routes/login')); // POST /api/auth/login (SCRUM-98)
 app.use('/api/orders', require('./routes/orders')); // order history (SCRUM-82, SCRUM-83)
+app.use('/api/admin/products', require('./routes/adminProducts')); // delete product (SCRUM-65)
 
 // Basic error handler
 app.use((err, req, res, next) => {
