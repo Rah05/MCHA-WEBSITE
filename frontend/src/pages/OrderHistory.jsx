@@ -1,96 +1,130 @@
+// Order History Page
 
 import { useEffect, useState } from 'react'
 import Header from '../components/Header'
-import { getOrders } from '../api/orders'
+import Card from '../components/ui/Card'
+import Button from '../components/ui/Button'
+import { getMyOrders, getToken } from '../api/orders'
 import './OrderHistory.css'
 
+// Status Labels
+const STATUS_LABELS = {
+  pending: 'Pending',
+  paid: 'Paid',
+  fulfilled: 'Fulfilled',
+  cancelled: 'Cancelled',
+  refunded: 'Refunded',
+}
+
+// Date Formatting
+function formatDate(value) {
+  return new Date(value).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  })
+}
+
+// Dollar Amount
+function formatMoney(value) {
+  return `$${Number(value).toFixed(2)}`
+}
+
+// Order History Page
 function OrderHistory() {
+  const signedIn = Boolean(getToken())
+
   const [orders, setOrders] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [loading, setLoading] = useState(signedIn)
+  const [sessionExpired, setSessionExpired] = useState(false)
+  const [message, setMessage] = useState('')
 
   useEffect(() => {
-    async function loadOrders() {
-      try {
-        const data = await getOrders()
-        setOrders(data)
-      } catch (err) {
-        setError({
-          message: err.message,
-          status: err.status,
-        })
-      } finally {
-        setLoading(false)
-      }
-    }
+    if (!signedIn) return
 
-    loadOrders()
-  }, [])
+    getMyOrders()
+      .then((data) => setOrders(data))
+      .catch((error) => {
+        if (error.status === 401) {
+          setSessionExpired(true)
+        } else if (error.status) {
+          setMessage(error.message)
+        } else {
+          setMessage('Unable to connect to the backend. Make sure backend is running.')
+        }
+      })
+      .finally(() => setLoading(false))
+  }, [signedIn])
 
-  function formatDate(date) {
-    return new Date(date).toLocaleDateString()
-  }
+  let content
 
-  function formatPrice(price) {
-    return `$${Number(price).toFixed(2)}`
+  if (!signedIn || sessionExpired) {
+    content = (
+      <Card title="Please sign in">
+        <p>
+          {sessionExpired
+            ? 'Your session has expired. Please sign in again to see your orders.'
+            : 'Sign in to see your past orders.'}
+        </p>
+        <Button href="/login">Log in</Button>
+      </Card>
+    )
+  } else if (loading) {
+    content = <p>Loading orders...</p>
+  } else if (message) {
+    content = <p className="order-error" role="alert">{message}</p>
+  } else if (orders.length === 0) {
+    content = (
+      <Card title="No orders yet">
+        <p>You haven't placed any orders yet.</p>
+        <Button href="/shop">Shop M.CHA</Button>
+      </Card>
+    )
+  } else {
+    content = (
+      <Card>
+        <div className="order-table-wrapper">
+          <table className="order-table">
+            <thead>
+              <tr>
+                <th>Order</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Items</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {orders.map((order) => (
+                <tr key={order.id}>
+                  <td>
+                    <a href={`/orders/${order.id}`}>
+                      #{order.orderNumber}
+                    </a>
+                  </td>
+                  <td>{formatDate(order.createdAt)}</td>
+                  <td>
+                    <span className={`order-status order-status--${order.status}`}>
+                      {STATUS_LABELS[order.status] || order.status}
+                    </span>
+                  </td>
+                  <td>{order.itemCount}</td>
+                  <td>{formatMoney(order.total)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    )
   }
 
   return (
     <>
       <Header />
-
       <main className="order-history">
-        <p className="order-history__label">MY ACCOUNT</p>
-        <h1>Order History</h1>
-        <p className="order-history__description">
-          View your previous purchases and order details.
-        </p>
-
-        {loading && <p>Loading your orders...</p>}
-
-        {error && (
-          <div className="order-history__error" role="alert">
-            <p>{error.message}</p>
-
-            {error.status === 401 && (
-              <p>
-                Please <a href="/login">log in</a> to view your orders.
-              </p>
-            )}
-          </div>
-        )}
-
-        {!loading && !error && orders.length === 0 && (
-          <p className="order-history__empty">
-            You haven't placed any orders yet.
-          </p>
-        )}
-
-        {!loading && !error && orders.length > 0 && (
-          <div className="order-history__list">
-            {orders.map((order) => (
-              <a
-                key={order.id}
-                href={`/orders/${order.id}`}
-                className="order-history__card"
-              >
-                <div>
-                  <h2>Order #{order.orderNumber}</h2>
-                  <p>{formatDate(order.createdAt)}</p>
-                  <p>{order.itemCount} item(s)</p>
-                </div>
-
-                <div className="order-history__summary">
-                  <span className="order-history__status">
-                    {order.status}
-                  </span>
-                  <strong>{formatPrice(order.total)}</strong>
-                  <span>View Details →</span>
-                </div>
-              </a>
-            ))}
-          </div>
-        )}
+        <h1>Order history</h1>
+        {content}
       </main>
     </>
   )
