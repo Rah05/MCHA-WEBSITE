@@ -1,16 +1,18 @@
 
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { getAdminProducts } from '../api/adminProducts'
+import ProductForm from '../components/ProductForm'
 import './AdminProducts.css'
 
-const initialProducts = [
-  { name: 'M. Blend 30g', category: 'Matcha', retail: 30, wholesale: 21, stock: '42 in stock', availability: 'Available' },
-  { name: 'Ceremonial Uji 20g', category: 'Matcha', retail: 38, wholesale: 27.5, stock: '6 left', availability: 'Available' },
-  { name: 'Hojicha 50g', category: 'Roasted tea', retail: 18, wholesale: 12, stock: '31 in stock', availability: 'Available' },
-  { name: 'Chawan bowl — Kyoto glaze', category: 'Teaware', retail: 64, wholesale: 44, stock: '4 left', availability: 'Available' },
-  { name: 'Bamboo chasen whisk', category: 'Teaware', retail: 24, wholesale: 15, stock: '18 in stock', availability: 'Available' },
-  { name: 'Iced Matcha Latte', category: 'Drinks (pop-up)', retail: 7, wholesale: null, stock: 'Made to order', availability: 'Pop-ups only' },
-  { name: 'Yuzu Matcha Soda', category: 'Drinks (pop-up)', retail: 8, wholesale: null, stock: 'Seasonal', availability: 'Hidden' },
-]
+// Products at or below this count show as "N left" and count as low stock.
+const LOW_STOCK = 10
+
+const money = (value) => `$${Number(value).toFixed(2)}`
+
+function stockText(product) {
+  if (product.stockLabel) return product.stockLabel
+  return product.stock <= LOW_STOCK ? `${product.stock} left` : `${product.stock} in stock`
+}
 
 const accounts = [
   { business: 'Kōyō Café', contact: 'mina@koyocafe.com', tier: 'Tier 2', minimum: '2 kg', status: 'Active' },
@@ -23,9 +25,59 @@ function AdminProducts() {
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('All')
   const [notice, setNotice] = useState('')
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
+  // null = form closed, 'new' = adding, a product = editing it
+  const [formProduct, setFormProduct] = useState(null)
+
+  useEffect(() => {
+    let cancelled = false
+    getAdminProducts()
+      .then((list) => {
+        if (!cancelled) setProducts(list)
+      })
+      .catch((err) => {
+        if (cancelled) return
+        if (err.status === 401) {
+          window.location.href = '/login'
+          return
+        }
+        setLoadError(
+          err.status === 403 ? 'Only admins can manage products.' : 'Could not load products. Please try again.'
+        )
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const closeForm = useCallback(() => setFormProduct(null), [])
+
+  const handleSaved = (saved, wasEdit) => {
+    setProducts((current) => {
+      const next = wasEdit ? current.map((p) => (p.id === saved.id ? saved : p)) : [...current, saved]
+      // Same order as the server: by category, then name
+      return next.sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name))
+    })
+    setFormProduct(null)
+    setNotice(wasEdit ? `Saved changes to ${saved.name}.` : `Added ${saved.name}.`)
+  }
+
+  const stats = useMemo(
+    () => ({
+      active: products.filter((p) => p.isAvailable).length,
+      lowStock: products.filter((p) => p.isAvailable && !p.stockLabel && p.stock <= LOW_STOCK).length,
+      hidden: products.filter((p) => !p.isAvailable).length,
+    }),
+    [products]
+  )
 
   const filteredProducts = useMemo(() => {
-    return initialProducts.filter((product) => {
+    return products.filter((product) => {
       const matchesSearch = product.name
         .toLowerCase()
         .includes(search.toLowerCase())
@@ -38,7 +90,7 @@ function AdminProducts() {
 
       return matchesSearch && matchesCategory
     })
-  }, [search, category])
+  }, [products, search, category])
 
   const showComingSoon = () => {
     setNotice('Product actions will be connected to the product management features.')
@@ -92,7 +144,8 @@ function AdminProducts() {
 
           <button
             className="admin-primary-button"
-            onClick={showComingSoon}
+            onClick={() => setFormProduct('new')}
+            disabled={Boolean(loadError)}
           >
             + ADD PRODUCT
           </button>
@@ -117,19 +170,19 @@ function AdminProducts() {
         <section className="admin-stats">
           <div className="admin-stat">
             <span>ACTIVE PRODUCTS</span>
-            <strong>24</strong>
+            <strong>{loading ? '–' : stats.active}</strong>
             <small>Visible in shop</small>
           </div>
 
           <div className="admin-stat">
             <span>LOW STOCK</span>
-            <strong>3</strong>
-            <small>Reorder soon</small>
+            <strong>{loading ? '–' : stats.lowStock}</strong>
+            <small>{LOW_STOCK} or fewer left</small>
           </div>
 
           <div className="admin-stat">
-            <span>HIDDEN / SOLD OUT</span>
-            <strong>2</strong>
+            <span>HIDDEN</span>
+            <strong>{loading ? '–' : stats.hidden}</strong>
             <small>Not shown to customers</small>
           </div>
 
@@ -180,29 +233,30 @@ function AdminProducts() {
 
               <tbody>
                 {filteredProducts.map((product) => (
-                  <tr key={product.name}>
+                  <tr key={product.id}>
                     <td className="product-name">{product.name}</td>
                     <td>{product.category}</td>
-                    <td>${product.retail.toFixed(2)}</td>
+                    <td>{money(product.price)}</td>
                     <td>
-                      {product.wholesale === null
+                      {product.wholesalePrice === null
                         ? '—'
-                        : `$${product.wholesale.toFixed(2)}`}
+                        : money(product.wholesalePrice)}
                     </td>
-                    <td>{product.stock}</td>
+                    <td>{stockText(product)}</td>
                     <td>
                       <span
                         className={`availability ${
-                          product.availability === 'Hidden' ? 'hidden' : ''
+                          product.isAvailable ? '' : 'hidden'
                         }`}
                       >
-                        {product.availability}
+                        {product.isAvailable ? 'Available' : 'Hidden'}
                       </span>
                     </td>
                     <td>
                       <button
                         className="admin-edit-button"
-                        onClick={showComingSoon}
+                        onClick={() => setFormProduct(product)}
+                        aria-label={`Edit ${product.name}`}
                       >
                         Edit
                       </button>
@@ -210,7 +264,15 @@ function AdminProducts() {
                   </tr>
                 ))}
 
-                {filteredProducts.length === 0 && (
+                {(loading || loadError) && (
+                  <tr>
+                    <td colSpan="7" className="admin-empty" role={loadError ? 'alert' : 'status'}>
+                      {loading ? 'Loading products…' : loadError}
+                    </td>
+                  </tr>
+                )}
+
+                {!loading && !loadError && filteredProducts.length === 0 && (
                   <tr>
                     <td colSpan="7" className="admin-empty">
                       No products found.
@@ -318,6 +380,14 @@ function AdminProducts() {
           </div>
         </section>
       </main>
+
+      {formProduct && (
+        <ProductForm
+          product={formProduct === 'new' ? null : formProduct}
+          onSaved={handleSaved}
+          onCancel={closeForm}
+        />
+      )}
     </div>
   )
 }
