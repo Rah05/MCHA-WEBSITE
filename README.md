@@ -263,3 +263,25 @@ const [[user]] = await pool.query('SELECT id, email, created_at FROM users WHERE
 ```
 
 Always pass values as the second argument (`[...]`), never by building the SQL string yourself. That keeps queries safe from SQL injection.
+
+## Troubleshooting
+
+| Problem | Cause and fix |
+|---|---|
+| `ECONNREFUSED ...:3306` | MySQL isn't running. Windows: open Services (Win+R, `services.msc`) and start **MySQL80**. Mac: `brew services start mysql`. |
+| `ER_ACCESS_DENIED_ERROR` | The username or password in `DATABASE_URL` is wrong. Test it with `mysql -u root -p`, URL-encode special characters (`@` becomes `%40`), and make sure no Windows environment variable named `DATABASE_URL` overrides `backend/.env`. |
+| `Cannot find module 'xyz'` | A teammate added a package. Run `npm install` in `backend/` and `frontend/`, then restart. |
+| `ENOENT ... package.json` | You're in the wrong folder. Run `npm` commands from `backend/` or `frontend/`, not the project root. |
+| `mysql: command not found` | Use the full path to `mysql.exe` (for example `C:\Program Files\MySQL\MySQL Server 8.0\bin\`), or add that folder to your PATH. |
+| Frontend shows "API status: unreachable" | The backend isn't running. Start it in its own terminal and refresh. |
+| `EADDRINUSE ... :3000` | Another process is using port 3000. Close the old backend terminal. |
+
+## After pulling new code
+
+Run `npm install` in `backend/` and `frontend/` after every `git pull` or merge of `develop`, then restart both servers.
+
+## Windows notes
+
+- Use Git Bash so commands like `cp` work.
+- Clone into a folder outside OneDrive (for example `~/dev`). OneDrive slows `npm install` and can lock files.
+- Install MySQL with the MySQL Installer for Windows, and remember the root password you set.
