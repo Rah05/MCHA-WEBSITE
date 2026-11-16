@@ -1,0 +1,56 @@
+.order-history {
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-3);
+  color: var(--color-text);
+}
+
+.order-history h1 {
+  font-weight: 500;
+  margin: 0 0 var(--space-4);
+}
+
+.order-table-wrapper {
+  overflow-x: auto;
+}
+
+.order-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.order-table th,
+.order-table td {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.order-table th {
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+}
+
+.order-status {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  font-size: var(--text-sm);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-cream);
+}
+
+.order-status--paid,
+.order-status--fulfilled {
+  background-color: var(--color-green-100);
+  color: var(--color-success);
+}
+
+.order-status--cancelled,
+.order-status--refunded {
+  background-color: var(--color-error-bg);
+  color: var(--color-error);
+}
+
+.order-error {
+  color: var(--color-error);
+}
