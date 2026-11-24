@@ -74,6 +74,7 @@ Open `backend/.env` and fill in your values:
 | `DATABASE_URL` | Your MySQL connection string, e.g. `mysql://root:yourpassword@localhost:3306/mcha` |
 | `DATABASE_SSL` | `false` for a local database, `true` for most hosted databases |
 | `JWT_SECRET` | Any long random string. Generate one with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` |
+| `WHOLESALE_INBOX` | Optional. The email address new wholesale inquiries are sent to. Locally, set it to any address to see the email printed in the backend terminal. |
 
 **Never commit `.env`.** It's ignored by git; only `.env.example` belongs in the repo. If you add a new variable, add it to `.env.example` with a placeholder value.
 
@@ -145,11 +146,14 @@ A passing run ends with `# fail 0`. To run a single file: `node --test tests/log
 | `tests/https.test.js` | HTTPS redirect and security headers (no database needed) | SCRUM-53, SCRUM-56 |
 | `tests/orders.test.js` | Order history API | SCRUM-82, SCRUM-83 |
 | `tests/schema.test.js` | Database rules for products and orders | SCRUM-120 |
+| `tests/adminProducts.test.js` | Admin add and edit product API: admin only, required fields, invalid input rejected | SCRUM-63, SCRUM-64 |
+| `tests/products.test.js` | Shop products API and hidden wholesale pricing: guests and customers never get `wholesalePrice`; wholesale, staff, and admin do; hidden products stay hidden; approving or removing a wholesale account applies immediately | SCRUM-89, SCRUM-92 |
+| `tests/wholesaleInquiries.test.js` | Wholesale inquiry form: saved and emailed to the owner, invalid forms rejected, still saved if the email fails, only admin/staff can list and update inquiries | SCRUM-91, SCRUM-92 |
 
 Good to know:
 
 - The tests use the database in `backend/.env`. Each file creates its own test users (emails ending in `example.com`) and deletes them afterwards, so your own data is left alone. **Never run the tests against the production database.**
-- No email is sent. The reset tests read the link from the console, the same way you would locally.
+- No email is sent. The reset and wholesale inquiry tests read the email from the console, the same way you would locally.
 - If `JWT_SECRET` isn't set, the tests use a throwaway one.
 - If login tests fail with a 500 error after a pull, run `npm run db:setup`. A new column was probably added.
 
@@ -186,17 +190,18 @@ git merge develop
 
 ## Roles and permissions
 
-There are four kinds of visitor: **guest** (not signed in), **customer**, **staff**, and **admin**. Roles live in the `roles` table, and each user has one.
+There are five kinds of visitor: **guest** (not signed in), **customer**, **wholesale** (a business an admin has approved to see wholesale prices), **staff**, and **admin**. Roles live in the `roles` table, and each user has one.
 
 ### Protecting a backend route
 
 Use the middleware in `backend/middleware/auth.js`:
 
 ```js
-const { ROLES, requireAuth, optionalAuth, requireRole, requireSelfOrRole } = require('../middleware/auth');
+const { ROLES, requireAuth, optionalAuth, identifyUser, requireRole, requireSelfOrRole } = require('../middleware/auth');
 
 router.get('/products', listProducts);                                                   // anyone, including guests
 router.get('/menu', optionalAuth, showMenu);                                             // anyone; req.user is set if signed in
+router.get('/catalog', identifyUser, showCatalog);                                       // anyone; a bad or expired token counts as a guest
 router.get('/account', requireAuth, showAccount);                                        // any signed-in user
 router.post('/products', requireAuth, requireRole(ROLES.ADMIN), createProduct);         // admins only
 router.get('/schedules', requireAuth, requireRole(ROLES.ADMIN, ROLES.STAFF), listShifts); // admins and staff
@@ -205,6 +210,7 @@ router.get('/users/:userId/orders', requireAuth, requireSelfOrRole('userId', ROL
 
 - `requireAuth` returns **401** if there's no valid login. Inside the route, `req.user` is `{ id, email, first_name, last_name, role }`.
 - `requireRole(...)` returns **403** if the user's role isn't in the list. Always put `requireAuth` before it.
+- `optionalAuth` returns **401** for a bad or expired token. `identifyUser` never does: it treats that visitor as a guest. Use it for public pages, so a stale token in someone's browser doesn't break the shop.
 - The role is read from the database on every request, so changing someone's role (or deleting them) takes effect immediately.
 - **Hiding a button in the frontend is not security.** Every admin/staff API route must use `requireRole`, because anyone can call the API directly.
 
@@ -225,15 +231,18 @@ The frontend sends it on every request as a header: `Authorization: Bearer <toke
 
 ### Who can do what (proposal, confirm with the team)
 
-| | Guest | Customer | Staff | Admin |
-|---|:-:|:-:|:-:|:-:|
-| Browse products, menu, events | ✅ | ✅ | ✅ | ✅ |
-| Register / sign in | ✅ | – | – | – |
-| Own account, order history, book events | | ✅ | ✅ | ✅ |
-| Staff schedules (view own) | | | ✅ | ✅ |
-| Manage events, view event requests | | | ✅ | ✅ |
-| Manage products, prices, wholesale | | | | ✅ |
-| Create/edit staff schedules, manage users and roles | | | | ✅ |
+| | Guest | Customer | Wholesale | Staff | Admin |
+|---|:-:|:-:|:-:|:-:|:-:|
+| Browse products, menu, events | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Send a wholesale inquiry | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Register / sign in | ✅ | – | – | – | – |
+| Own account, order history, book events | | ✅ | ✅ | ✅ | ✅ |
+| See wholesale prices | | | ✅ | ✅ | ✅ |
+| Staff schedules (view own) | | | | ✅ | ✅ |
+| Manage events, view event requests | | | | ✅ | ✅ |
+| View and follow up on wholesale inquiries | | | | ✅ | ✅ |
+| Manage products, prices, wholesale | | | | | ✅ |
+| Create/edit staff schedules, manage users and roles | | | | | ✅ |
 
 ## Database tables
 
@@ -241,18 +250,19 @@ Defined in `backend/db/schema.sql`:
 
 | Table | What it holds |
 |---|---|
-| `roles` | `admin`, `staff`, `customer` |
+| `roles` | `admin`, `staff`, `customer`, `wholesale` |
 | `users` | Accounts: email, bcrypt password hash, role, name, password-reset token |
 | `products` | Name, category, `price`, `wholesale_price` (NULL = not sold wholesale), `stock`, `stock_label` (e.g. "Made to order"), `is_available` |
 | `orders` | One per checkout: customer (or NULL `user_id` for guests), `order_type` (retail/wholesale), `status` (pending → paid → fulfilled, or cancelled/refunded), totals, `square_payment_id` |
 | `order_items` | Products in each order, with the name and price **copied at checkout** so old orders stay correct after price changes |
+| `wholesale_inquiries` | Wholesale inquiry form submissions: business and contact details, message, and follow-up `status` (new → contacted → closed) |
 
 Rules the database enforces:
 
 - Prices and stock can't be negative, and order quantities must be at least 1.
 - A product that has been ordered **can't be deleted**. Set `is_available = FALSE` to hide it instead.
 - Deleting an order deletes its items. Deleting a user keeps their orders (they become guest orders).
-- **Never send `wholesale_price` to customers.** Only include it in admin/wholesale API responses.
+- **Never send `wholesale_price` to customers.** Only include it in admin/wholesale API responses. The shop uses `GET /api/products`, which already handles this.
 - Prices are dollars (`DECIMAL`) and come back as numbers. Square expects cents, so convert with `Math.round(price * 100)` when creating a payment.
 
 ## Order history API (SCRUM-82, SCRUM-83)
@@ -296,6 +306,50 @@ Product fields (same names in requests and responses):
 | `isAvailable` | `true` / `false` | Defaults to `true`. `false` hides it from the shop |
 
 Responses also include `id`, `createdAt`, and `updatedAt`. Invalid input returns **400** with an `error` message you can show next to the form, and unknown fields (e.g. `retail`) are rejected rather than ignored.
+
+## Shop products API (SCRUM-89)
+
+For the shop and product pages. Anyone can call it. Send the login token if there is one (`Authorization: Bearer <token>`), because that decides whether wholesale prices are included.
+
+| Route | Returns |
+|---|---|
+| `GET /api/products` | `{ pricing, products: [...] }`: every product that is for sale (`isAvailable` true), sorted by category, then name |
+| `GET /api/products/:id` | `{ pricing, product }`, or **404** if it doesn't exist or is hidden |
+
+Each product has `id`, `name`, `description`, `category`, `price`, `stock`, `stockLabel`, `imageUrl`, and `soldWholesale` (true/false, with no price).
+
+- `pricing` is `"wholesale"` for wholesale, staff, and admin accounts, and those responses also include `wholesalePrice` on each product (`null` means not sold wholesale). Everyone else gets `"retail"` and no `wholesalePrice` field at all.
+- A bad or expired token is treated as a guest rather than an error, so the shop always loads.
+- **Approving a business:** there's no admin screen yet. An admin switches the account to the wholesale role in MySQL:
+  ```sql
+  UPDATE users SET role_id = (SELECT id FROM roles WHERE name = 'wholesale') WHERE email = 'cafe@example.com';
+  ```
+  It takes effect on that account's next request. Set it back to `customer` to remove access.
+
+## Wholesale inquiries API (SCRUM-91)
+
+| Route | Who | What it does |
+|---|---|---|
+| `POST /api/wholesale/inquiries` | Anyone | Send the wholesale inquiry form. Returns **201** `{ message, inquiry: { id, status } }`. |
+| `GET /api/wholesale/inquiries` | Admin, staff | All inquiries, newest first: `{ inquiries: [...] }`. Optional `?status=new`, `contacted`, or `closed`. |
+| `PATCH /api/wholesale/inquiries/:id` | Admin, staff | Send `{ "status": "contacted" }` (or `new` / `closed`) to track follow-up. Returns `{ inquiry }`. |
+
+Form fields:
+
+| Field | Notes |
+|---|---|
+| `businessName` | **Required**, up to 200 |
+| `contactName` | **Required**, up to 200 |
+| `email` | **Required**, a valid email |
+| `message` | **Required**, up to 5000 |
+| `phone` | Optional, up to 50 |
+| `businessType` | Optional, up to 100, e.g. `Cafe` |
+| `website` | Optional, an `http(s)` link |
+| `expectedVolume` | Optional, up to 200, e.g. `5 kg of matcha a month` |
+
+- Invalid input returns **400** with an `error` message you can show on the form. Unknown fields are rejected. Fields other than `message` must be on one line.
+- Every inquiry is saved first, then emailed to `WHOLESALE_INBOX`. If the email fails, the inquiry is still saved and can be seen with `GET /api/wholesale/inquiries`.
+- If the sender is signed in, the inquiry is linked to their account. Nothing is emailed to the address typed in the form.
 
 ## Querying MySQL
 
