@@ -2,10 +2,12 @@ const jwt = require('jsonwebtoken');
 const pool = require('../db/pool');
 
 // Roles match the `roles` table. A visitor with no token is a "guest".
+// WHOLESALE is a business account an admin has approved to see wholesale prices (SCRUM-89).
 const ROLES = Object.freeze({
   ADMIN: 'admin',
   STAFF: 'staff',
   CUSTOMER: 'customer',
+  WHOLESALE: 'wholesale',
 });
 
 const TOKEN_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '2h';
@@ -96,6 +98,26 @@ async function optionalAuth(req, res, next) {
   return requireAuth(req, res, next);
 }
 
+// For public pages that show more to some signed-in users, such as wholesale prices in the
+// shop (SCRUM-89). It never blocks the request: no token, or a token that is invalid,
+// expired, or signed out, all carry on as a guest (req.user = null). That is the
+// difference from optionalAuth, which answers 401 for a bad token. A shopper with a stale
+// token in their browser should still see the shop, just with guest prices.
+async function identifyUser(req, res, next) {
+  req.user = null;
+  const token = readBearerToken(req);
+  if (token) {
+    try {
+      req.user = await loadUser(token);
+    } catch (err) {
+      if (!(err instanceof jwt.JsonWebTokenError)) {
+        return next(err); // a database error is a real fault, not a guest
+      }
+    }
+  }
+  return next();
+}
+
 // Allows only the listed roles. Always use after requireAuth.
 //   router.post('/products', requireAuth, requireRole(ROLES.ADMIN), createProduct);
 //   router.get('/schedules', requireAuth, requireRole(ROLES.ADMIN, ROLES.STAFF), listSchedules);
@@ -132,6 +154,7 @@ module.exports = {
   signToken,
   requireAuth,
   optionalAuth,
+  identifyUser,
   requireRole,
   requireSelfOrRole,
 };

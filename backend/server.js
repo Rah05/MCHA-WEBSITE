@@ -30,6 +30,8 @@ app.use('/api/auth', require('./routes/login')); // POST /api/auth/login (SCRUM-
 app.use('/api/auth', require('./routes/password')); // forgot/reset password (SCRUM-100)
 app.use('/api/orders', require('./routes/orders')); // order history (SCRUM-82, SCRUM-83)
 app.use('/api/admin/products', require('./routes/adminProducts')); // admin products: add, edit, delete, price (SCRUM-63 to 66)
+app.use('/api/products', require('./routes/products')); // public shop catalog; wholesale prices only for approved accounts (SCRUM-89)
+app.use('/api/wholesale', require('./routes/wholesale')); // wholesale inquiry form and follow-up (SCRUM-91)
 
 // Basic error handler
 app.use((err, req, res, next) => {

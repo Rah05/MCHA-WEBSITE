@@ -4,10 +4,11 @@
 
 CREATE TABLE IF NOT EXISTS roles (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(30) NOT NULL UNIQUE  -- 'admin', 'staff', 'customer'
+  name VARCHAR(30) NOT NULL UNIQUE  -- 'admin', 'staff', 'customer', 'wholesale'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT IGNORE INTO roles (name) VALUES ('admin'), ('staff'), ('customer');
+-- 'wholesale' is a business account an admin has approved to see wholesale prices (SCRUM-89).
+INSERT IGNORE INTO roles (name) VALUES ('admin'), ('staff'), ('customer'), ('wholesale');
 
 CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -79,4 +80,25 @@ CREATE TABLE IF NOT EXISTS order_items (
   CONSTRAINT chk_order_items_quantity CHECK (quantity > 0),
   CONSTRAINT chk_order_items_price CHECK (unit_price >= 0),
   INDEX idx_order_items_order (order_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Wholesale inquiries from the wholesale page form (SCRUM-91). Every submission is saved
+-- here first, so nothing is lost if the notification email fails. user_id is NULL when a
+-- guest sends the form. status tracks the owner's follow-up.
+CREATE TABLE IF NOT EXISTS wholesale_inquiries (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT,
+  business_name VARCHAR(200) NOT NULL,
+  contact_name VARCHAR(200) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  phone VARCHAR(50),
+  business_type VARCHAR(100),             -- e.g. 'Cafe', 'Restaurant', 'Retail shop'
+  website VARCHAR(500),
+  expected_volume VARCHAR(200),           -- free text, e.g. '5 kg of matcha a month'
+  message TEXT NOT NULL,
+  status ENUM('new', 'contacted', 'closed') NOT NULL DEFAULT 'new',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_wholesale_inquiries_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+  INDEX idx_wholesale_inquiries_status (status, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
