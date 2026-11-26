@@ -7,49 +7,54 @@ import OrderHistory from './pages/OrderHistory'
 import OrderDetail from './pages/OrderDetail'
 import AdminProducts from './pages/AdminProducts'
 import CartPage from './pages/CartPage'
-
+import CheckoutPage from './pages/CheckoutPage'
+import PaymentPage from './pages/PaymentPage'
 
 function App() {
-  const path = window.location.pathname
+const path =
+window.location.pathname.replace(/\/+$/, '') || '/'
 
-  if (path === '/register') {
-    return <Registration />
-  }
+if (path === '/register') {
+return <Registration />
+}
 
-  if (path === '/login') {
-    return <Login />
-  }
+if (path === '/login') {
+return <Login />
+}
 
-  // Forgot/reset password flow (SCRUM-100)
-  if (path === '/forgot-password') {
-    return <ForgotPassword />
-  }
+if (path === '/forgot-password') {
+return <ForgotPassword />
+}
 
-  if (path === '/reset-password') {
-    return <ResetPassword />
-  }
+if (path === '/reset-password') {
+return <ResetPassword />
+}
 
-  if (path === '/orders') {
-    return <OrderHistory />
-  }
+if (path === '/orders') {
+return <OrderHistory />
+}
 
-  if (path.startsWith('/orders/')) {
-    return <OrderDetail />
-  }
+if (path.startsWith('/orders/')) {
+return <OrderDetail />
+}
 
-  if (path === '/admin/products') {
-    return <AdminProducts />
-  }
-
-
+if (path === '/admin/products') {
+return <AdminProducts />
+}
 
 if (path === '/cart') {
 return <CartPage />
 }
 
+if (path === '/checkout') {
+return <CheckoutPage />
+}
 
+if (path === '/payment') {
+return <PaymentPage />
+}
 
-  return <Home />
+return <Home />
 }
 
 export default App
