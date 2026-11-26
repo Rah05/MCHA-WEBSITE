@@ -6,6 +6,8 @@ import ResetPassword from './pages/ResetPassword'
 import OrderHistory from './pages/OrderHistory'
 import OrderDetail from './pages/OrderDetail'
 import AdminProducts from './pages/AdminProducts'
+import CartPage from './pages/CartPage'
+
 
 function App() {
   const path = window.location.pathname
@@ -38,6 +40,14 @@ function App() {
   if (path === '/admin/products') {
     return <AdminProducts />
   }
+
+
+
+if (path === '/cart') {
+return <CartPage />
+}
+
+
 
   return <Home />
 }
