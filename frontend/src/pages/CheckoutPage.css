@@ -1,0 +1,163 @@
+.mcha-checkout {
+min-height: 100vh;
+background: #f7f7f2;
+color: #304638;
+padding: 35px 6%;
+font-family: Arial, sans-serif;
+}
+
+.mcha-checkout * {
+box-sizing: border-box;
+}
+
+.checkout-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding-bottom: 24px;
+border-bottom: 1px solid #dce2d9;
+margin-bottom: 30px;
+}
+
+.checkout-header a {
+color: #304638;
+text-decoration: none;
+font-weight: 600;
+}
+
+.checkout-steps {
+display: flex;
+flex-wrap: wrap;
+gap: 25px;
+margin-bottom: 30px;
+color: #879185;
+font-size: 14px;
+}
+
+.checkout-steps a {
+color: #47634d;
+text-decoration: none;
+}
+
+.checkout-steps strong {
+color: #304638;
+}
+
+.mcha-checkout h1 {
+font-size: 32px;
+margin-bottom: 10px;
+}
+
+.mcha-checkout h2 {
+font-size: 20px;
+margin: 0 0 20px;
+}
+
+.checkout-layout {
+display: grid;
+grid-template-columns: 1.7fr 1fr;
+gap: 25px;
+margin-top: 30px;
+align-items: start;
+}
+
+.checkout-panel {
+background: white;
+border: 1px solid #dce2d9;
+border-radius: 14px;
+padding: 28px;
+}
+
+.checkout-panel label {
+display: flex;
+flex-direction: column;
+gap: 8px;
+font-size: 14px;
+font-weight: 500;
+margin-bottom: 20px;
+}
+
+.checkout-panel input,
+.checkout-panel select {
+width: 100%;
+padding: 13px;
+border: 1px solid #d3dcd1;
+border-radius: 7px;
+background: #fff;
+color: #304638;
+font-size: 15px;
+}
+
+.checkout-panel input:focus,
+.checkout-panel select:focus {
+outline: 2px solid #809681;
+outline-offset: 1px;
+}
+
+.checkout-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 15px;
+}
+
+.checkout-panel form,
+.checkout-panel h2:not(:first-child) {
+margin-top: 25px;
+}
+
+.checkout-button {
+width: 100%;
+padding: 15px;
+background: #45644d;
+color: white;
+border: none;
+border-radius: 7px;
+font-size: 15px;
+font-weight: 600;
+cursor: pointer;
+margin-top: 15px;
+}
+
+.checkout-button:hover {
+background: #304638;
+}
+
+.checkout-button:disabled {
+opacity: 0.5;
+cursor: not-allowed;
+}
+
+.checkout-row {
+display: flex;
+justify-content: space-between;
+gap: 15px;
+margin: 18px 0;
+font-size: 14px;
+}
+
+.checkout-summary hr {
+border: none;
+border-top: 1px solid #dce2d9;
+}
+
+.checkout-summary small {
+display: block;
+color: #7c877c;
+line-height: 1.5;
+margin-top: 20px;
+}
+
+@media (max-width: 768px) {
+.checkout-layout,
+.checkout-grid {
+grid-template-columns: 1fr;
+}
+
+.mcha-checkout {
+padding: 20px;
+}
+
+.checkout-panel {
+padding: 20px;
+}
+}

@@ -1,0 +1,169 @@
+.mcha-cart {
+min-height: 100vh;
+background: #f8f7f2;
+color: #263d2b;
+padding: 30px 6%;
+font-family: Arial, sans-serif;
+box-sizing: border-box;
+}
+
+.mcha-cart-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding-bottom: 24px;
+border-bottom: 1px solid #dce1d5;
+margin-bottom: 40px;
+}
+
+.mcha-cart-header span {
+font-size: 24px;
+font-weight: bold;
+letter-spacing: 3px;
+}
+
+.mcha-cart a {
+color: #466344;
+text-decoration: none;
+font-weight: bold;
+}
+
+.mcha-cart h1 {
+font-size: 36px;
+margin-bottom: 8px;
+}
+
+.mcha-cart-layout {
+display: grid;
+grid-template-columns: 2fr 1fr;
+gap: 30px;
+margin-top: 30px;
+align-items: start;
+}
+
+.mcha-cart-items,
+.mcha-cart-summary {
+background: white;
+border: 1px solid #dce1d5;
+border-radius: 16px;
+padding: 24px;
+}
+
+.mcha-cart-item {
+display: flex;
+align-items: center;
+gap: 20px;
+padding: 20px 0;
+border-bottom: 1px solid #e5e8e0;
+}
+
+.mcha-cart-item:last-child {
+border-bottom: none;
+}
+
+.mcha-cart-item img {
+width: 100px;
+height: 100px;
+object-fit: cover;
+border-radius: 12px;
+}
+
+.mcha-cart-info {
+flex: 1;
+}
+
+.mcha-cart-info h3 {
+margin: 0 0 8px;
+}
+
+.mcha-cart-quantity {
+display: flex;
+align-items: center;
+gap: 14px;
+margin: 12px 0;
+}
+
+.mcha-cart-quantity button {
+width: 34px;
+height: 34px;
+border: 1px solid #b9c5b1;
+background: #f1f4ec;
+color: #263d2b;
+border-radius: 6px;
+cursor: pointer;
+font-size: 18px;
+}
+
+.mcha-cart-remove {
+border: none;
+background: none;
+color: #a34b4b;
+cursor: pointer;
+padding: 0;
+}
+
+.mcha-cart-summary h2 {
+margin-top: 0;
+}
+
+.mcha-cart-summary-row {
+display: flex;
+justify-content: space-between;
+gap: 15px;
+margin: 20px 0;
+}
+
+.mcha-cart-summary hr {
+border: none;
+border-top: 1px solid #dce1d5;
+}
+
+.mcha-cart-checkout {
+width: 100%;
+padding: 15px;
+background: #466344;
+color: white;
+border: none;
+border-radius: 8px;
+font-size: 16px;
+cursor: pointer;
+margin: 12px 0;
+}
+
+.mcha-cart button:disabled {
+opacity: 0.5;
+cursor: not-allowed;
+}
+
+.mcha-cart-summary small {
+color: #737b70;
+line-height: 1.5;
+}
+
+.mcha-cart-empty {
+text-align: center;
+padding: 50px 15px;
+}
+
+@media (max-width: 768px) {
+.mcha-cart-layout {
+grid-template-columns: 1fr;
+}
+
+.mcha-cart-header span {
+font-size: 18px;
+}
+
+.mcha-cart-item img {
+width: 65px;
+height: 65px;
+}
+
+.mcha-cart-item {
+gap: 12px;
+}
+
+.mcha-cart h1 {
+font-size: 28px;
+}
+}
