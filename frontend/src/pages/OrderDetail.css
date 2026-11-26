@@ -61,7 +61,9 @@
 }
 
 .order-detail__section {
-  max-width: 850px;
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
   margin-bottom: 2rem;
   padding: 1.5rem;
   background-color: var(--color-surface);
@@ -104,12 +106,15 @@
 }
 
 .order-detail__totals {
-  margin-left: auto;
+  width: 100%;
+  max-width: none;
+  margin-left: 0;
 }
 
 .order-detail__totals div {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 2rem;
   padding: 0.75rem 0;
 }
@@ -149,3 +154,135 @@
     align-items: flex-start;
   }
 }
+
+/* Customer Order Progress */
+
+.order-progress__message {
+  padding: 1.25rem;
+  margin-bottom: 2rem;
+  background-color: var(--color-cream);
+  border-left: 4px solid var(--color-green-500);
+  border-radius: 6px;
+}
+
+.order-progress__message h3 {
+  margin: 0 0 0.5rem;
+  color: var(--color-green-900);
+  font-size: 1.2rem;
+}
+
+.order-progress__message p {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.order-progress__message--cancelled {
+  border-left-color: var(--color-error);
+}
+
+.order-progress__message--refunded {
+  border-left-color: var(--color-text-muted);
+}
+
+.order-progress__steps {
+  padding: 1rem 0;
+}
+
+.order-progress__bar {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  gap: 1rem;
+}
+
+.order-progress__bar::before {
+  content: '';
+  position: absolute;
+  top: 17px;
+  left: 10%;
+  right: 10%;
+  height: 3px;
+  background-color: var(--color-border);
+  z-index: 0;
+}
+
+.order-progress__step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  gap: 0.75rem;
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.order-progress__circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: var(--color-border);
+  color: var(--color-text-muted);
+  font-weight: 600;
+  border: 3px solid var(--color-surface);
+}
+
+.order-progress__step--completed .order-progress__circle {
+  background-color: var(--color-green-500);
+  color: white;
+}
+
+.order-progress__step--current .order-progress__circle {
+  background-color: var(--color-surface);
+  color: var(--color-green-900);
+  border: 3px solid var(--color-green-500);
+}
+
+.order-progress__step span {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.order-progress__step--completed span,
+.order-progress__step--current span {
+  color: var(--color-green-900);
+  font-weight: 600;
+}
+
+.order-progress__updated {
+  margin: 1.5rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.order-progress__unknown {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+@media (max-width: 600px) {
+  .order-progress__bar {
+    gap: 0.25rem;
+  }
+
+  .order-progress__step span {
+    font-size: 0.7rem;
+  }
+
+  .order-progress__circle {
+    width: 32px;
+    height: 32px;
+  }
+
+  .order-progress__bar::before {
+    top: 15px;
+  }
+}
+
+
