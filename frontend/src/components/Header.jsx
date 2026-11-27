@@ -31,12 +31,16 @@ function Header() {
       </button>
 
       <nav className={`navigation ${menuOpen ? 'active' : ''}`}>
-        <a href="/shop">SHOP</a>
-        <a href="/wholesale">WHOLESALE</a>
-        <a href="/schedule">SCHEDULE</a>
-        <a href="/events">EVENTS</a>
-        <a href="/tea-info">TEA INFO</a>
-        <a href="/about">ABOUT</a>
+        <a href="/shop" onClick={() => setMenuOpen(false)}>SHOP</a>
+        <a href="/wholesale" onClick={() => setMenuOpen(false)}>WHOLESALE</a>
+        <a href="/schedule" onClick={() => setMenuOpen(false)}>SCHEDULE</a>
+        <a href="/events" onClick={() => setMenuOpen(false)}>EVENTS</a>
+        <a href="/tea-info" onClick={() => setMenuOpen(false)}>TEA INFO</a>
+        <a href="/about" onClick={() => setMenuOpen(false)}>ABOUT</a>
+
+        {signedIn && (
+          <a href="/orders" onClick={() => setMenuOpen(false)}>My ORDERS</a>
+        )}
       </nav>
 
       <div className="header-actions">
