@@ -6,6 +6,7 @@ import ResetPassword from './pages/ResetPassword'
 import OrderHistory from './pages/OrderHistory'
 import OrderDetail from './pages/OrderDetail'
 import AdminProducts from './pages/AdminProducts'
+import AdminOrders from './pages/AdminOrders'
 
 function App() {
   const path = window.location.pathname
@@ -37,6 +38,10 @@ function App() {
 
   if (path === '/admin/products') {
     return <AdminProducts />
+  }
+
+  if (path === '/admin/orders') {
+    return <AdminOrders />
   }
 
   return <Home />
