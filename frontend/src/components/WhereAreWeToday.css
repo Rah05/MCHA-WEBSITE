@@ -1,0 +1,334 @@
+.mcha-where {
+--mcha-green: #214c39;
+--mcha-dark: #183a2d;
+--mcha-cream: #f6f3e9;
+--mcha-sage: #e5eadc;
+
+width: 100%;
+padding: 88px 32px;
+background: var(--mcha-cream);
+color: var(--mcha-dark);
+box-sizing: border-box;
+font-family: inherit;
+}
+
+.mcha-where *,
+.mcha-where *::before,
+.mcha-where *::after {
+box-sizing: border-box;
+}
+
+.mcha-where__inner {
+max-width: 1200px;
+margin: 0 auto;
+display: grid;
+grid-template-columns: 1.1fr 0.9fr;
+align-items: center;
+gap: 70px;
+}
+
+.mcha-where__eyebrow {
+display: inline-block;
+margin-bottom: 22px;
+font-size: 12px;
+font-weight: 800;
+letter-spacing: 3px;
+color: #69826a;
+}
+
+.mcha-where h2 {
+margin: 0;
+font-family: Georgia, "Times New Roman", serif;
+font-size: clamp(40px, 5vw, 76px);
+line-height: 1.08;
+letter-spacing: -2px;
+font-weight: 600;
+}
+
+.mcha-where h2 em {
+color: #769476;
+font-weight: 400;
+}
+
+.mcha-where__intro {
+max-width: 520px;
+margin: 24px 0;
+font-size: 17px;
+line-height: 1.8;
+color: #607367;
+}
+
+.mcha-where__status {
+display: inline-flex;
+align-items: center;
+gap: 10px;
+padding: 10px 16px;
+margin-bottom: 28px;
+border: 1px solid #d5ddcf;
+border-radius: 50px;
+background: #edf0e6;
+color: #4d6a52;
+font-size: 13px;
+font-weight: 700;
+}
+
+.mcha-where__dot {
+width: 9px;
+height: 9px;
+background: #b9a35b;
+border-radius: 50%;
+}
+
+.mcha-where__dot.is-open {
+background: #3f9c62;
+box-shadow: 0 0 0 4px #3f9c6220;
+}
+
+.mcha-where__card {
+max-width: 550px;
+padding: 28px;
+background: #fffef9;
+border: 1px solid #e1e4d9;
+border-radius: 18px;
+box-shadow: 0 14px 35px #203b2910;
+}
+
+.mcha-where__card-heading {
+display: flex;
+align-items: center;
+gap: 16px;
+}
+
+.mcha-where__card-icon {
+display: grid;
+place-items: center;
+width: 50px;
+height: 50px;
+background: #e7eddf;
+border-radius: 12px;
+font-size: 22px;
+}
+
+.mcha-where__label {
+display: block;
+margin-bottom: 7px;
+color: #8a9b8b;
+font-size: 10px;
+font-weight: 800;
+letter-spacing: 2px;
+}
+
+.mcha-where h3 {
+margin: 0;
+font-size: 20px;
+color: var(--mcha-dark);
+}
+
+.mcha-where__address {
+margin: 20px 0;
+color: #64786a;
+line-height: 1.6;
+}
+
+.mcha-where__facts {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 20px;
+padding: 20px 0;
+border-top: 1px solid #e7e9e0;
+border-bottom: 1px solid #e7e9e0;
+}
+
+.mcha-where__facts strong {
+font-size: 14px;
+color: #355743;
+}
+
+.mcha-where__extra {
+padding: 18px 0 4px;
+color: #64786a;
+line-height: 1.7;
+font-size: 14px;
+}
+
+.mcha-where__extra a {
+color: var(--mcha-green);
+font-weight: 700;
+}
+
+.mcha-where__details-button {
+display: flex;
+justify-content: space-between;
+align-items: center;
+width: 100%;
+margin-top: 22px;
+padding: 16px 20px;
+border: none;
+border-radius: 9px;
+background: var(--mcha-green);
+color: white;
+font: inherit;
+font-size: 14px;
+font-weight: 700;
+cursor: pointer;
+transition: background 0.2s;
+}
+
+.mcha-where__details-button:hover {
+background: #32674d;
+}
+
+.mcha-where__details-button span {
+font-size: 20px;
+}
+
+.mcha-where__visual {
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+}
+
+.mcha-where__visual-circle {
+display: flex;
+align-items: center;
+justify-content: center;
+width: min(100%, 450px);
+aspect-ratio: 1;
+border-radius: 50%;
+background:
+radial-gradient(
+circle at 35% 30%,
+#f5f7e9,
+#dce5d3 65%,
+#cad8c3
+);
+position: relative;
+}
+
+.mcha-where__visual-circle::before,
+.mcha-where__visual-circle::after {
+content: "";
+position: absolute;
+border: 1px solid #ffffff90;
+border-radius: 50%;
+}
+
+.mcha-where__visual-circle::before {
+inset: 22px;
+}
+
+.mcha-where__visual-circle::after {
+inset: 48px;
+}
+
+.mcha-where__cup {
+position: relative;
+width: 180px;
+height: 240px;
+z-index: 1;
+transform: rotate(-8deg);
+filter: drop-shadow(15px 24px 14px #304b3030);
+}
+
+.mcha-where__cup-top {
+width: 190px;
+height: 40px;
+margin-left: -5px;
+border: 8px solid #f8f6ed;
+border-radius: 50%;
+background: #81a56d;
+position: relative;
+z-index: 2;
+}
+
+.mcha-where__cup-body {
+width: 175px;
+height: 185px;
+margin: -15px auto 0;
+display: flex;
+justify-content: center;
+align-items: center;
+background: linear-gradient(
+115deg,
+#f9f8ef,
+#e7e9dc 70%,
+#d7dbd0
+);
+clip-path: polygon(0 0, 100% 0, 84% 100%, 16% 100%);
+}
+
+.mcha-where__cup-body span {
+color: #456b50;
+font-family: Georgia, serif;
+font-size: 32px;
+font-weight: bold;
+letter-spacing: 3px;
+}
+
+.mcha-where__cup-shadow {
+width: 175px;
+height: 18px;
+background: #d4d8cc;
+border-radius: 50%;
+margin: -8px auto 0;
+}
+
+.mcha-where__visual-caption {
+display: flex;
+gap: 18px;
+margin-top: 32px;
+font-size: 10px;
+font-weight: 800;
+letter-spacing: 2px;
+color: #8ba08a;
+}
+
+@media (max-width: 850px) {
+.mcha-where {
+padding: 64px 24px;
+}
+
+.mcha-where__inner {
+grid-template-columns: 1fr;
+gap: 45px;
+}
+
+.mcha-where__visual-circle {
+width: min(100%, 350px);
+}
+
+.mcha-where__copy {
+max-width: 650px;
+margin: auto;
+}
+}
+
+@media (max-width: 480px) {
+.mcha-where {
+padding: 48px 16px;
+}
+
+.mcha-where h2 {
+font-size: 42px;
+letter-spacing: -1px;
+}
+
+.mcha-where__card {
+padding: 20px;
+}
+
+.mcha-where__facts {
+gap: 12px;
+}
+
+.mcha-where__visual-circle {
+width: min(100%, 280px);
+}
+
+.mcha-where__visual-caption {
+flex-direction: column;
+align-items: center;
+gap: 7px;
+}
+}
