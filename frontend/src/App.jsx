@@ -6,6 +6,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import OrderHistory from "./pages/OrderHistory";
 import OrderDetail from "./pages/OrderDetail";
+import Wholesale from './pages/Wholesale'
 
 import AdminProducts from "./pages/AdminProducts";
 import EventRequests from "./pages/EventRequests";
@@ -32,6 +33,10 @@ if (path === "/preview/location-banner") return <WhereAreWeToday />;
 
 if (path === "/shop" || path === "/preview/shop") {
 return <Shop />;
+}
+
+if (path === '/wholesale') {
+    return <Wholesale />
 }
 
 return <Home />;

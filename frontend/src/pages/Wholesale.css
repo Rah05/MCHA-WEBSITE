@@ -1,0 +1,128 @@
+.wholesale {
+  background-color: var(--color-cream);
+  color: var(--color-text);
+}
+
+.wholesale h1,
+.wholesale h2,
+.wholesale h3 {
+  font-family: var(--font-heading);
+  font-weight: 500;
+}
+
+.wholesale-eyebrow {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-sm);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-green-500);
+}
+
+.wholesale-hero {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 6rem var(--space-3);
+  text-align: center;
+}
+
+.wholesale-hero h1 {
+  margin: 0 0 var(--space-3);
+  font-size: clamp(2.25rem, 6vw, var(--text-hero));
+}
+
+.wholesale-intro {
+  margin: 0 0 var(--space-4);
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.wholesale-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.wholesale-section {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-3);
+}
+
+.wholesale-section h2 {
+  margin: 0 0 var(--space-4);
+  font-size: 2rem;
+}
+
+.wholesale-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--space-4);
+}
+
+.wholesale-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  line-height: 1.8;
+}
+
+.wholesale-note {
+  margin: var(--space-3) 0 0;
+  color: var(--color-text-muted);
+}
+
+.wholesale-band {
+  background-color: var(--color-green-900);
+  color: var(--color-cream);
+}
+
+.wholesale-band .wholesale-eyebrow {
+  color: var(--color-green-300);
+}
+
+.wholesale-band h2,
+.wholesale-band h3 {
+  color: var(--color-cream);
+}
+
+.wholesale-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wholesale-step-number {
+  display: inline-block;
+  margin-bottom: var(--space-2);
+  font-size: 2rem;
+  color: var(--color-green-300);
+}
+
+.wholesale-steps h3 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-lg);
+}
+
+.wholesale-steps p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.wholesale-band .card {
+  color: var(--color-text);
+}
+
+.wholesale-steps--light h3 {
+  color: var(--color-green-900);
+}
+
+.wholesale-steps--light .wholesale-step-number {
+  color: var(--color-green-900);
+}
+
+.wholesale-band .card__title {
+  color: var(--color-green-900);
+}
